@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>TeBno | Tienda empresarial</title>
+  <meta name="description" content="Tienda empresarial TeBno con catálogo, panel admin, panel asesores, estadísticas y sincronización en Netlify.">
+  <style>
+    
+:root{
+  --bg:#070707; --panel:#111111; --card:#151515; --line:rgba(255,255,255,.10);
+  --text:#f8fafc; --muted:#b9b9c3; --purple:#dc2626; --purple2:#fb7185; --white:#fff;
+  --success:#16a34a; --warning:#f59e0b; --danger:#ef4444; --shadow:0 18px 45px rgba(0,0,0,.34);
+  --r:22px;
+}
+    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top left,rgba(239,68,68,.12),transparent 18%),radial-gradient(circle at 85% 12%,rgba(255,255,255,.07),transparent 14%),var(--bg);color:var(--text);line-height:1.45}
+    img{max-width:100%;display:block} button,input,select,textarea{font:inherit}
+    a{text-decoration:none;color:inherit}
+    .wrap{max-width:1280px;margin:0 auto;padding:0 16px}
+    .topbar{position:sticky;top:0;z-index:50;background:rgba(9,6,17,.82);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.16)}
+    .topbar-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand-logo{width:56px;height:56px;border-radius:18px;background:linear-gradient(180deg,rgba(220,38,38,.22),rgba(220,38,38,.08));border:1px solid rgba(251,113,133,.34);display:flex;align-items:center;justify-content:center;box-shadow:0 0 26px rgba(220,38,38,.35);overflow:hidden}.brand-logo img{width:100%;height:100%;object-fit:cover}
+    .brand-title{font-size:28px;font-weight:800;letter-spacing:-.03em}.brand-sub{font-size:12px;color:var(--muted)}
+    .nav{display:flex;gap:18px;align-items:center;flex-wrap:wrap}.nav a{font-size:14px;font-weight:700;color:#e2e8f0}
+    .header-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .btn{border:0;border-radius:16px;padding:12px 16px;font-weight:800;cursor:pointer;transition:.2s transform,.2s opacity,.2s background,.2s border-color,.2s box-shadow;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 12px 24px rgba(0,0,0,.16)} .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+    .btn-primary{background:linear-gradient(135deg,var(--purple),#be123c);color:#fff}.btn-secondary{background:#fff;color:#140a23;border:1px solid rgba(255,255,255,.55)}.btn-soft{background:rgba(255,255,255,.05);color:#fff;border:1px solid var(--line)}
+    .btn-success{background:var(--success);color:#fff}.btn-danger{background:var(--danger);color:#fff}.btn-warning{background:var(--warning);color:#111827}
+    .hero{position:relative;overflow:hidden;background:radial-gradient(circle at top left, rgba(239,68,68,.22), transparent 24%),radial-gradient(circle at 80% 20%, rgba(255,255,255,.08), transparent 12%),linear-gradient(135deg,#070707 0%,#14090a 45%,#3f0b12 100%)}
+    .hero:before{content:'';position:absolute;inset:auto -10% -18% auto;width:460px;height:460px;border-radius:50%;background:radial-gradient(circle,rgba(239,68,68,.18),transparent 65%);pointer-events:none}
+    .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;min-height:74vh;align-items:center;padding:28px 0 56px}
+    .hero-badge{display:inline-flex;padding:8px 14px;border:1px solid rgba(251,113,133,.34);background:rgba(220,38,38,.12);border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#fecdd3}
+    .hero-copy{display:flex;flex-direction:column;gap:18px}
+    .hero h1{font-size:56px;line-height:1.03;margin:0;font-weight:900;letter-spacing:-.04em}.hero p{max-width:760px;font-size:18px;color:#d2d7e1;margin:0}
+    .hero-actions,.row{display:flex;gap:12px;flex-wrap:wrap}.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px}
+    .hero-trust{display:flex;flex-wrap:wrap;gap:10px}.trust-pill{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:13px;font-weight:800;color:#eef2ff}
+    .panel{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+    .panel-pad{padding:20px}.hero-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    .logo-card{grid-column:1/-1;background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04))}
+    .section{padding:26px 0 56px}.section h2{font-size:34px;line-height:1.08;margin:0 0 8px;font-weight:900;letter-spacing:-.03em}.section p.lead{margin:0;color:var(--muted)}
+    .search-bar{margin-top:-26px;position:relative;z-index:2}.search-bar .panel{background:linear-gradient(180deg,rgba(17,17,17,.96),rgba(17,17,17,.90));box-shadow:0 22px 50px rgba(0,0,0,.35)}.search-grid{display:grid;grid-template-columns:1.55fr 1fr 1fr auto;gap:14px;padding:16px}
+    .feature-strip{padding:12px 0 6px}.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.feature-item{padding:18px;border-radius:20px;border:1px solid var(--line);background:rgba(255,255,255,.04)}.feature-item strong{display:block;font-size:20px;margin-top:8px}.feature-item .muted{margin-top:8px;font-size:14px}
+    .field{display:flex;flex-direction:column;gap:8px}.label{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+    .input,.select,.textarea{width:100%;padding:14px 14px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:#fff;outline:none}
+    .textarea{min-height:96px;resize:vertical}.select option{color:#111827}
+    .catalog-grid{display:grid;grid-template-columns:1fr 360px;gap:24px}.product-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .product{overflow:hidden;position:relative;transition:.22s transform,.22s box-shadow,.22s border-color}.product:hover{transform:translateY(-4px);box-shadow:0 26px 45px rgba(0,0,0,.32);border-color:rgba(176,132,255,.34)}.product-img{height:240px;background:#0e0918;display:flex;align-items:center;justify-content:center;position:relative}.product-img:after{content:'';position:absolute;inset:auto 0 0;height:55%;background:linear-gradient(180deg,transparent,rgba(9,6,17,.55))}.product-img img{width:100%;height:100%;object-fit:cover}
+    .product-body{padding:16px}.product-top{display:flex;justify-content:space-between;gap:10px;align-items:center}.pill{display:inline-flex;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:800;background:rgba(139,92,255,.15);color:#e8dcff}
+    .badge-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.badge-soft{display:inline-flex;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--line);font-size:12px;font-weight:700;color:#e8ebf5}
+    .status{font-size:12px;font-weight:800}.price{font-size:30px;font-weight:900;color:#d9c3ff;margin-top:10px}.muted{color:var(--muted)}
+    .aside-stack{display:flex;flex-direction:column;gap:18px}.chat-box{display:flex;flex-direction:column;gap:12px}.messages{height:360px;overflow:auto;background:#0d0818;border:1px solid var(--line);border-radius:18px;padding:14px}
+    .msg{margin-bottom:10px;padding:12px 14px;border-radius:16px;max-width:92%}.msg.user{background:rgba(139,92,255,.18);margin-left:auto}.msg.bot{background:rgba(255,255,255,.06)}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap}.tab{padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-weight:800;cursor:pointer}.tab.active{background:var(--purple);border-color:var(--purple);color:#fff}
+    .toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .cards-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.cards-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+    .stat-card strong{display:block;font-size:30px;margin-top:6px}
+    .floating{position:fixed;right:16px;bottom:16px;z-index:60;display:flex;flex-direction:column;gap:10px}.float-btn{min-width:58px;padding:12px 14px;border-radius:999px;box-shadow:var(--shadow)}
+    .modal{position:fixed;inset:0;background:rgba(4,3,10,.72);display:none;align-items:flex-start;justify-content:center;z-index:80;padding:18px;overflow:auto}.modal.open{display:flex}
+    .modal-card{width:min(1240px,100%);margin:auto;background:#0c0814;border:1px solid var(--line);border-radius:28px;box-shadow:0 40px 90px rgba(0,0,0,.5)}
+    .modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 18px 0}.modal-body{padding:18px;display:grid;gap:18px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.list{display:grid;gap:12px}
+    .product-row,.query-row{display:grid;grid-template-columns:130px 1fr auto;gap:14px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.04)}
+    .query-row{grid-template-columns:1fr auto}.thumb{width:130px;height:90px;border-radius:14px;background:#0d0818;overflow:hidden}.thumb img{width:100%;height:100%;object-fit:cover}
+    .small{font-size:12px}.tiny{font-size:11px}.notice{padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+    .helper-text{font-size:12px;color:var(--muted)}
+    .chip-row{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{padding:9px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:#fff;font-weight:800;cursor:pointer;transition:.2s background,.2s transform}
+    .chip:hover{background:rgba(139,92,255,.18);transform:translateY(-1px)}
+    .hide{display:none !important}.footer{padding:28px 0;border-top:1px solid var(--line);color:var(--muted)}
+    .cta-band{display:grid;grid-template-columns:1.2fr auto;gap:18px;align-items:center;background:linear-gradient(135deg,#160b28,#34145f);border:1px solid rgba(176,132,255,.24)}
+    .stars{letter-spacing:.2em;color:#f59e0b;font-size:14px;font-weight:900}
+    .center{text-align:center} .hr{height:1px;background:var(--line);margin:8px 0}
+    .old-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .brands-grid,.info-grid,.faq-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .brand-card,.info-card,.faq-item{padding:18px;border-radius:22px;border:1px solid var(--line);background:rgba(255,255,255,.04);box-shadow:var(--shadow)}
+    .brand-card strong,.info-card strong,.faq-item strong{display:block;font-size:20px;margin-top:10px}
+    .brand-meta{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:14px;color:#fecdd3;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+    .social-links{display:flex;flex-wrap:wrap;gap:10px}
+    .social-links a{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.05);font-weight:800}
+    .feature-list{display:grid;gap:10px;margin-top:10px}
+    .feature-list .notice{background:rgba(255,255,255,.04)}
+    @media (max-width:1100px){.hero-grid,.catalog-grid,.cards-3,.grid-4,.grid-3,.feature-grid,.cta-band,.brands-grid,.info-grid,.faq-grid{grid-template-columns:1fr}.hero h1{font-size:44px}.hero-cards,.cards-2,.search-grid,.product-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr 1fr 1fr}.modal-card{width:100%}}
+    @media (max-width:760px){.nav{display:none}.topbar-inner{align-items:flex-start}.brand-title{font-size:24px}.hero h1{font-size:36px}.stats-grid,.old-grid{grid-template-columns:1fr}.header-actions{width:100%}.header-actions .btn{flex:1}.product-row{grid-template-columns:1fr}.thumb{width:100%;height:170px}.floating{right:10px;bottom:10px}.float-btn{padding:11px 12px;font-size:13px}.section{padding-bottom:40px}.hero-trust{gap:8px}.trust-pill{width:100%;justify-content:center}.social-links a{width:100%}}
+  </style>
+</head>
+<body>
+  <div id="toast" class="hide" style="position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:99;padding:12px 16px;border-radius:16px;background:#1a1130;border:1px solid var(--line);font-weight:800;box-shadow:var(--shadow)"></div>
+
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="#inicio">
+        <div class="brand-logo" aria-hidden="true"><img id="brandHeaderLogo" src="assets/logo-tebno-placeholder.svg" alt="Logo TeBno"></div>
+        <div>
+          <div id="siteNameHeader" class="brand-title">TeBno</div>
+          <div id="siteTaglineHeader" class="brand-sub">Celulares y tecnología</div>
+        </div>
+      </a>
+      <nav class="nav">
+        <a href="#inicio">Inicio</a>
+        <a href="#catalogo">Catálogo</a>
+        <a href="#marcas">Marcas</a>
+        <a href="#beneficios">Opciones</a>
+        <a href="#opiniones">Opiniones</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+      <div class="header-actions">
+        <button id="cartBtn" class="btn btn-soft" type="button">Carrito <span id="cartCount">0</span></button>
+        <button id="openAdvisorModal" class="btn btn-soft" type="button">Asesores</button>
+        <button id="openAdminModal" class="btn btn-primary" type="button">Admin</button>
+      </div>
+    </div>
+  </header>
+
+  <section id="inicio" class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <div id="heroBadge" class="hero-badge">Tienda online lista para vender</div>
+        <h1 id="heroTitle">Celulares, promociones y atención rápida en un solo lugar</h1>
+        <p id="heroSubtitle">Muestra tus equipos con mejor presencia visual, más espacios de confianza y contacto directo por WhatsApp para cerrar ventas más fácil.</p>
+        <div class="hero-actions">
+          <a id="heroPrimaryBtn" class="btn btn-secondary" href="#catalogo">Ver catálogo</a>
+          <a id="heroSecondaryBtn" class="btn btn-soft" target="_blank" rel="noreferrer" href="https://wa.me/573202033463">Pedir por WhatsApp</a>
+        </div>
+        <div class="hero-trust">
+          <div class="trust-pill">⚡ Respuesta rápida</div>
+          <div class="trust-pill">🛡️ Compra con confianza</div>
+          <div class="trust-pill">📲 Catálogo listo para vender</div>
+        </div>
+        <div class="stats-grid">
+          <div class="panel panel-pad"><div class="small" style="text-transform:uppercase;color:#fecdd3;font-weight:800">Garantía</div><strong>Disponible</strong></div>
+          <div class="panel panel-pad"><div class="small" style="text-transform:uppercase;color:#fecdd3;font-weight:800">Atención</div><strong>Rápida</strong></div>
+          <div class="panel panel-pad"><div class="small" style="text-transform:uppercase;color:#fecdd3;font-weight:800">Sincronización</div><strong id="syncStateHero">Conectando</strong><div id="syncModeHero" class="tiny muted" style="margin-top:6px">Esperando conexión con Netlify</div></div>
+        </div>
+      </div>
+      <div class="hero-cards">
+        <div class="panel panel-pad logo-card">
+          <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+            <div class="brand-logo" style="width:96px;height:96px;border-radius:26px"><img id="brandHeroLogo" src="assets/logo-tebno-placeholder.svg" alt="Logo TeBno"></div>
+            <div>
+              <div class="small" style="color:#fecdd3;font-weight:800">Imagen de marca</div>
+              <div style="font-size:44px;font-weight:900;line-height:1">TeBno</div>
+              <div class="muted" style="margin-top:8px">Quedó un logo base editable para que puedas subir tu imagen real luego desde el panel o cambiando el archivo de logo.</div>
+            </div>
+          </div>
+        </div>
+        <div class="panel panel-pad logo-card">
+          <div class="small" style="color:#fecdd3;font-weight:800">Promoción destacada</div>
+          <div id="highlightTitle" style="font-size:34px;font-weight:900;margin-top:8px">Promos listas para destacar</div>
+          <div id="highlightText" class="muted" style="margin-top:10px">Usa este bloque para empujar la oferta principal del mes, el lanzamiento destacado o el combo más vendedor.</div>
+        </div>
+        <div class="panel panel-pad"><div class="small" style="color:#fecdd3;font-weight:800">Paneles</div><div style="font-size:22px;font-weight:900;margin-top:8px">Admin y asesores</div><div class="muted" style="margin-top:8px">Cada panel está separado y organizado por secciones.</div></div>
+        <div class="panel panel-pad"><div class="small" style="color:#fecdd3;font-weight:800">Netlify</div><div style="font-size:22px;font-weight:900;margin-top:8px">Listo para publicar</div><div class="muted" style="margin-top:8px">Los cambios guardados se reflejan para todos cuando la web está desplegada.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="search-bar">
+    <div class="wrap">
+      <div class="panel">
+        <div class="search-grid" style="grid-template-columns:1.4fr 1fr 1fr 1fr 1fr auto">
+          <div class="field"><label class="label" for="searchInput">Buscar celular</label><input id="searchInput" class="input" placeholder="Ej: iPhone 13, Samsung, 256GB"></div>
+          <div class="field"><label class="label" for="brandFilter">Marca</label><select id="brandFilter" class="select"></select></div>
+          <div class="field"><label class="label" for="memoryFilter">Memoria</label><select id="memoryFilter" class="select"></select></div>
+          <div class="field"><label class="label" for="statusFilter">Estado</label><select id="statusFilter" class="select"></select></div>
+          <div class="field"><label class="label" for="priceFilter">Precio</label><select id="priceFilter" class="select"><option value="Todos">Todos</option><option value="0-1000000">Menos de $1.000.000</option><option value="1000000-2000000">$1.000.000 - $2.000.000</option><option value="2000000-5000000">Más de $2.000.000</option></select></div>
+          <button id="clearFilters" class="btn btn-primary" type="button" style="align-self:end">Limpiar</button>
+        </div>
+        <div style="padding:0 16px 16px">
+          <div class="helper-text">Búsquedas de ejemplo:</div>
+          <div class="chip-row" id="searchExamples" style="margin-top:8px">
+            <button class="chip" type="button" data-search-example="iPhone 128GB">iPhone 128GB</button>
+            <button class="chip" type="button" data-search-example="Samsung 256GB">Samsung 256GB</button>
+            <button class="chip" type="button" data-search-example="menos de 2 millones">Menos de 2 millones</button>
+            <button class="chip" type="button" data-search-example="seminuevo buena cámara">Seminuevo cámara</button>
+            <button class="chip" type="button" data-search-example="Motorola barato">Motorola barato</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:18px;padding-bottom:14px">
+    <div class="wrap">
+      <div class="cards-3">
+        <div class="panel panel-pad" style="background:linear-gradient(135deg,#7f1d1d,#dc2626)">
+          <div class="small" style="color:#fff1f2;font-weight:800;text-transform:uppercase;letter-spacing:.16em">Promoción visible</div>
+          <div style="font-size:28px;font-weight:900;margin-top:8px">Espacio para oferta del mes</div>
+          <div style="margin-top:10px;color:#fff1f2">Ideal para anunciar descuento, combo o referencia destacada sin que el cliente tenga que buscar demasiado.</div>
+        </div>
+        <div class="panel panel-pad">
+          <div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase;letter-spacing:.16em">Más opciones</div>
+          <div style="font-size:26px;font-weight:900;margin-top:8px">Recibimos usado y damos asesoría</div>
+          <div class="muted" style="margin-top:10px">La web ya deja claro que puedes negociar, orientar al cliente y mover inventario con más facilidad.</div>
+        </div>
+        <div class="panel panel-pad">
+          <div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase;letter-spacing:.16em">Confianza</div>
+          <div style="font-size:26px;font-weight:900;margin-top:8px">Pagos, envíos y garantía visibles</div>
+          <div class="muted" style="margin-top:10px">Se reforzó el contenido para que la tienda se vea más seria y más completa desde la primera visita.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="feature-strip">
+    <div class="wrap">
+      <div class="feature-grid">
+        <div class="feature-item">
+          <div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Venta clara</div>
+          <strong>Precios visibles y contacto directo</strong>
+          <div class="muted">La tienda ya queda pensada para que el cliente vea rápido modelos, memoria, precio y cómo escribirte.</div>
+        </div>
+        <div class="feature-item">
+          <div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Más confianza</div>
+          <strong>Marca, promoción y prueba social</strong>
+          <div class="muted">La portada, las ofertas y las opiniones ahora empujan mejor la decisión de compra.</div>
+        </div>
+        <div class="feature-item">
+          <div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Gestión simple</div>
+          <strong>Admin y asesores listos desde el inicio</strong>
+          <div class="muted">Se dejaron ejemplos cargados para que no se vea vacío y puedas editar sobre una base útil.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="featuredSection" class="section" style="padding-top:12px">
+    <div class="wrap">
+      <div><div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase;letter-spacing:.16em">Colección destacada</div><h2>Más opciones listas para vender</h2><p class="lead">Se dejaron más referencias de ejemplo para que la tienda no se vea vacía y puedas editar sobre una base real.</p></div>
+      <div id="featuredGrid" class="cards-3" style="margin-top:18px"></div>
+    </div>
+  </section>
+
+  <section id="marcas" class="section" style="background:#0d0818">
+    <div class="wrap">
+      <div><div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase;letter-spacing:.16em">Marcas</div><h2>Modelos por marca y tipo de cliente</h2><p class="lead">Esta zona ayuda a que el cliente identifique rápido qué línea le conviene más.</p></div>
+      <div id="brandsGrid" class="brands-grid" style="margin-top:18px"></div>
+    </div>
+  </section>
+
+  <section id="beneficios" class="section">
+    <div class="wrap">
+      <div><div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase;letter-spacing:.16em">Opciones de compra</div><h2>Más espacios con información útil para cerrar ventas</h2><p class="lead">Se amplió esta parte con más espacios para pagos, garantía, envíos, horario, atención y usado como parte de pago.</p></div>
+      <div id="businessOptionsGrid" class="info-grid" style="margin-top:18px"></div>
+    </div>
+  </section>
+
+  <section id="catalogo" class="section">
+    <div class="wrap catalog-grid">
+      <div>
+        <div class="toolbar">
+          <div>
+            <div class="small" style="color:#fecaca;font-weight:800;text-transform:uppercase;letter-spacing:.16em">Catálogo</div>
+            <h2 id="catalogTitle">Productos publicados</h2>
+            <p id="catalogSubtitle" class="lead">Usa el buscador y los filtros para ver precios y referencias.</p>
+          </div>
+          <div class="notice"><strong>Resultado:</strong> <span id="resultCount">0</span> equipos</div>
+        </div>
+        <div id="categoryTabs" class="tabs" style="margin:18px 0 16px"></div>
+        <div id="productGrid" class="product-grid"></div>
+        <div id="noResults" class="panel panel-pad center hide" style="margin-top:16px"><h3 style="margin:0 0 8px;font-size:28px">No encontramos productos</h3><div class="muted">Prueba otra búsqueda o cambia los filtros.</div></div>
+      </div>
+      <aside class="aside-stack">
+        <div class="panel panel-pad chat-box">
+          <div class="toolbar">
+            <div><div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase;letter-spacing:.16em">Chat del catálogo</div><div id="chatPanelTitle" style="font-size:22px;font-weight:900">Asistencia rápida</div></div>
+            <button id="forwardToAdvisorBtn" class="btn btn-soft" type="button" style="padding:10px 12px;font-size:12px">Pasar a asesor</button>
+          </div>
+          <div id="chatMessages" class="messages"></div>
+          <input id="chatInput" class="input" placeholder="Pregunta por precio o referencia">
+          <div class="chip-row" id="chatExamples">
+            <button class="chip" type="button" data-chat-example="Quiero un iPhone por 2 millones">iPhone por 2 millones</button>
+            <button class="chip" type="button" data-chat-example="Busco Samsung con buena cámara">Samsung con buena cámara</button>
+            <button class="chip" type="button" data-chat-example="Muéstrame el más económico">Más económico</button>
+            <button class="chip" type="button" data-chat-example="Quiero un Tecno económico">Tecno económico</button>
+          </div>
+          <div class="old-grid">
+            <button id="chatSend" class="btn btn-primary" type="button">Enviar</button>
+            <button id="chatClear" class="btn btn-soft" type="button">Limpiar chat</button>
+          </div>
+        </div>
+        <div id="ofertas" class="panel panel-pad" style="background:linear-gradient(135deg,#7f1d1d,#dc2626)">
+          <div class="small" style="color:#e8dcff;font-weight:800;text-transform:uppercase">Ofertas</div>
+          <div id="offerTitle" style="font-size:30px;font-weight:900;margin-top:8px">Promociones activas</div>
+          <div id="offerText" style="margin-top:10px;color:#fff1f2">Pregunta por referencias seleccionadas con descuento.</div>
+        </div>
+        <div class="panel panel-pad">
+          <div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Publicación</div>
+          <div class="muted" style="margin-top:8px">Última sincronización</div>
+          <div id="syncLabel" style="font-size:24px;font-weight:900;margin-top:4px">—</div>
+          <div id="syncModeBadge" class="small" style="margin-top:8px;color:#fecdd3;font-weight:800;text-transform:uppercase">Modo local</div>
+          <div id="syncNote" class="tiny muted" style="margin-top:10px">En Netlify, la tienda consulta cambios cada pocos segundos para mostrarlos a otros visitantes.</div>
+        </div>
+        <div class="panel panel-pad">
+          <div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Disponibles</div>
+          <div id="availableStats" class="muted" style="margin-top:10px">Cargando datos...</div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="estadisticas" class="section" style="background:#f8f7fb;color:#111827">
+    <div class="wrap">
+      <div><div class="small" style="color:#be123c;font-weight:800;text-transform:uppercase;letter-spacing:.16em">Base de datos y métricas</div><h2>Lo que entra, lo que buscan y lo que más interesa</h2><p class="lead" style="color:#5b6472">Estos datos quedan listos para revisarlos desde el panel admin y asesores.</p></div>
+      <div class="cards-3" style="margin-top:18px">
+        <div class="panel panel-pad stat-card" style="background:#fff;color:#111827"><div class="small" style="color:#be123c;font-weight:800">Visitas hoy</div><strong id="visitsToday">0</strong><div class="muted">Entradas registradas del día actual.</div></div>
+        <div class="panel panel-pad stat-card" style="background:#fff;color:#111827"><div class="small" style="color:#be123c;font-weight:800">Búsquedas hoy</div><strong id="searchesToday">0</strong><div class="muted">Cuántas búsquedas hicieron los visitantes.</div></div>
+        <div class="panel panel-pad stat-card" style="background:#fff;color:#111827"><div class="small" style="color:#be123c;font-weight:800">Chats hoy</div><strong id="chatsToday">0</strong><div class="muted">Mensajes entrantes al chat del catálogo.</div></div>
+      </div>
+      <div class="cards-2" style="margin-top:18px">
+        <div class="panel panel-pad" style="background:#fff;color:#111827"><div class="small" style="color:#be123c;font-weight:800;text-transform:uppercase">Términos más buscados</div><div id="topSearches" class="list" style="margin-top:12px"></div></div>
+        <div class="panel panel-pad" style="background:#fff;color:#111827"><div class="small" style="color:#be123c;font-weight:800;text-transform:uppercase">Intereses del chat</div><div id="topInterests" class="list" style="margin-top:12px"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="opiniones" class="section" style="background:#fff;color:#111827">
+    <div class="wrap">
+      <div><div class="small" style="color:#be123c;font-weight:800;text-transform:uppercase;letter-spacing:.16em">Opiniones</div><h2>Clientes satisfechos</h2></div>
+      <div id="testimonialsGrid" class="cards-3" style="margin-top:18px"></div>
+    </div>
+  </section>
+
+  <section id="servicios" class="section" style="background:#0b0b0b">
+    <div class="wrap">
+      <div><div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase;letter-spacing:.16em">Servicios TeBno</div><h2>Más espacios útiles para vender mejor</h2><p class="lead">Se añadieron bloques para que la tienda no dependa solo del catálogo y también comunique valor, confianza y opciones de atención.</p></div>
+      <div class="cards-2" style="margin-top:18px">
+        <div class="panel panel-pad">
+          <div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Atención</div>
+          <div style="font-size:28px;font-weight:900;margin-top:8px">Cotización rápida por WhatsApp</div>
+          <div class="muted" style="margin-top:10px">Perfecto para clientes que preguntan por precio, memoria, cámara, batería o disponibilidad.</div>
+        </div>
+        <div class="panel panel-pad">
+          <div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Valor agregado</div>
+          <div style="font-size:28px;font-weight:900;margin-top:8px">Accesorios, activación y entrega</div>
+          <div class="muted" style="margin-top:10px">Puedes usar este espacio para vender combos, vidrio, forro, cargador, transferencia de datos o configuración inicial.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="wrap">
+      <div class="panel panel-pad cta-band">
+        <div>
+          <div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase;letter-spacing:.16em">Cierre de venta</div>
+          <div style="font-size:34px;font-weight:900;margin-top:8px">¿Listo para atender clientes desde la web?</div>
+          <div class="muted" style="margin-top:10px;color:#ffe4e6">Esta versión ya queda mejor presentada para vender: catálogo atractivo, chat útil, opiniones visibles y contacto directo por WhatsApp.</div>
+        </div>
+        <div class="row">
+          <a class="btn btn-secondary" href="#catalogo">Ver catálogo</a>
+          <a id="ctaWhatsappBtn" class="btn btn-primary" href="https://wa.me/573202033463" target="_blank" rel="noreferrer">Ir a WhatsApp</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" class="section" style="background:#f8f7fb;color:#111827">
+    <div class="wrap">
+      <div><div class="small" style="color:#be123c;font-weight:800;text-transform:uppercase;letter-spacing:.16em">Preguntas frecuentes</div><h2>Respuestas rápidas para generar confianza</h2><p class="lead" style="color:#5b6472">También quedó este espacio para responder dudas comunes antes de que el cliente te escriba.</p></div>
+      <div id="faqGrid" class="faq-grid" style="margin-top:18px"></div>
+    </div>
+  </section>
+
+  <section id="contacto" class="section">
+    <div class="wrap cards-2">
+      <div class="panel panel-pad">
+        <div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase;letter-spacing:.16em">Contacto</div>
+        <h2 style="font-size:36px">Pide información de tu próximo celular</h2>
+        <p class="lead" id="contactText">Escríbenos para conocer precios, disponibilidad, promociones y asesoría personalizada.</p>
+        <div class="feature-list">
+          <div class="notice"><div class="small">Ciudad</div><div id="contactCity" style="font-size:22px;font-weight:900">Cali, Colombia</div></div>
+          <div class="notice"><div class="small">Horario</div><div id="contactSchedule" style="font-size:20px;font-weight:900">Lunes a sábado de 9:00 a. m. a 7:00 p. m.</div></div>
+          <div class="notice"><div class="small">Métodos de pago</div><div id="contactPayments" style="font-size:18px;font-weight:800">Efectivo, transferencia, Nequi y Daviplata</div></div>
+        </div>
+      </div>
+      <div class="panel panel-pad list">
+        <div class="notice"><div class="small">WhatsApp</div><div id="contactPhone" style="font-size:24px;font-weight:900">320 203 3463</div></div>
+        <div class="notice"><div class="small">Dirección</div><div id="contactAddress" style="font-size:22px;font-weight:900">Calle 18 # 4 - 07, Avenida del Hospital</div></div>
+        <div class="notice"><div class="small">Envíos y entrega</div><div id="contactDelivery" style="font-size:18px;font-weight:800">Entregas locales y envíos nacionales sujetos a disponibilidad.</div></div>
+        <div class="notice"><div class="small">Garantía</div><div id="contactWarranty" style="font-size:18px;font-weight:800">Garantía según referencia y estado del equipo.</div></div>
+        <div class="notice"><div class="small">Redes sociales</div><div id="socialLinks" class="social-links" style="margin-top:10px"></div></div>
+        <a id="contactWhatsappBtn" class="btn btn-primary" href="https://wa.me/573202033463" target="_blank" rel="noreferrer">Escribir por WhatsApp</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer"><div class="wrap" style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div id="footerText">© 2026 TeBno. Todos los derechos reservados.</div><div id="footerRight">Cali, Colombia · Atención rápida</div></div></footer>
+
+  <div class="floating">
+    <button id="floatingAvailable" class="btn btn-soft float-btn" type="button">Disponibles</button>
+    <button id="floatingAdvisor" class="btn btn-soft float-btn" type="button">Asesor</button>
+    <button id="floatingChat" class="btn btn-primary float-btn" type="button">Chat</button>
+  </div>
+
+  <div id="cartModal" class="modal"><div class="modal-card"><div class="modal-head"><h3 style="margin:0">Carrito</h3><button class="btn btn-soft" type="button" data-close="cartModal">Cerrar</button></div><div class="modal-body"><div id="cartList" class="list"></div><div class="toolbar"><div><strong>Total:</strong> <span id="cartTotal">$0</span></div><button id="cartCheckout" class="btn btn-primary" type="button">Enviar por WhatsApp</button></div></div></div></div>
+
+  <div id="adminModal" class="modal"><div class="modal-card"><div class="modal-head"><h3 style="margin:0">Panel administrador</h3><button class="btn btn-soft" type="button" data-close="adminModal">Cerrar</button></div><div class="modal-body">
+    <div id="adminLoginBox" class="panel panel-pad cards-2">
+      <div>
+        <div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Ingreso admin</div>
+        <div class="muted" style="margin-top:8px">Desde aquí cambias productos, textos, botones, contraseñas, estadísticas y opciones del sitio.</div>
+      </div>
+      <div class="field"><label class="label" for="adminPassword">Contraseña admin</label><input id="adminPassword" class="input" type="password" placeholder="Ingresa la clave actual"><button id="adminLogin" class="btn btn-primary" type="button" style="margin-top:10px">Entrar</button></div>
+    </div>
+    <div id="adminPanel" class="hide">
+      <div class="tabs" id="adminTabs"></div>
+      <div id="adminSections"></div>
+    </div>
+  </div></div></div>
+
+  <div id="advisorModal" class="modal"><div class="modal-card"><div class="modal-head"><h3 style="margin:0">Panel asesores</h3><button class="btn btn-soft" type="button" data-close="advisorModal">Cerrar</button></div><div class="modal-body">
+    <div id="advisorLoginBox" class="panel panel-pad cards-2">
+      <div>
+        <div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Ingreso asesores</div>
+        <div class="muted" style="margin-top:8px">Responde consultas, mira intereses, usa respuestas sugeridas por IA basada en el catálogo y guarda seguimiento.</div>
+      </div>
+      <div class="field"><label class="label" for="advisorPassword">Contraseña asesor</label><input id="advisorPassword" class="input" type="password" placeholder="Ingresa la clave actual"><button id="advisorLogin" class="btn btn-primary" type="button" style="margin-top:10px">Entrar</button></div>
+    </div>
+    <div id="advisorPanel" class="hide">
+      <div class="tabs" id="advisorTabs"></div>
+      <div id="advisorSections"></div>
+    </div>
+  </div></div></div>
+
+  <script>
+  (function(){
+    var API = '/.netlify/functions/store';
+    var pollMs = 3000;
+    var syncChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('tebno-sync') : null;
+    var pollTimer = null;
+    var syncRuntime = { live:false, lastRemoteAt:'' };
+    var state = {data:null, cart:[], adminLogged:false, advisorLogged:false, activeAdminTab:'productos', activeAdvisorTab:'consultas', currentCategory:'Todas', chats:[]};
+    function $ (id){ return document.getElementById(id); }
+    function qsa(sel,root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); }
+    function money(n){ return new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(Number(n||0)); }
+    function dayKey(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+    function nowString(){ return new Date().toLocaleString('es-CO'); }
+    function normalizeText(text){ return String(text||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''); }
+    function formatPhoneDisplay(phone){ var digits=String(phone||'').replace(/\D/g,''); return digits.length===10 ? digits.replace(/(\d{3})(\d{3})(\d{4})/,'$1 $2 $3') : String(phone||''); }
+    function parseBudget(text){ var q=normalizeText(text); var m=q.match(/(\d+(?:[\.,]\d+)?)\s*(millones|millon|millon|mill|mil)\b/i); if(m){ var n=parseFloat(String(m[1]).replace(',','.')); var unit=String(m[2]||''); if(unit==='mil') return Math.round(n*1000); return Math.round(n*1000000); } var raw=q.match(/\b(\d{6,8})\b/); return raw ? parseInt(raw[1],10) : 0; }
+    function wantsCheap(text){ return /econom|barat|asequible|bajo presupuesto/.test(normalizeText(text)); }
+    function wantsCamera(text){ return /camara|foto|fotos|video|videos|selfie/.test(normalizeText(text)); }
+    function wantsBattery(text){ return /bateria|duracion|aguante|todo el dia/.test(normalizeText(text)); }
+    function detectBrand(text){ var q=normalizeText(text); if(/iphone|apple/.test(q)) return 'Apple'; if(/samsung/.test(q)) return 'Samsung'; if(/xiaomi|redmi|poco/.test(q)) return 'Xiaomi'; if(/motorola|moto/.test(q)) return 'Motorola'; if(/honor/.test(q)) return 'Honor'; if(/infinix/.test(q)) return 'Infinix'; if(/oppo/.test(q)) return 'Oppo'; if(/tecno/.test(q)) return 'Tecno'; return ''; }
+    function detectMemory(text){ var m=String(text||'').match(/\b(64|128|256|512)\s*gb\b/i); return m ? m[1]+'GB' : ''; }
+    function productScore(product, text, budget){ var q=normalizeText(text); var hay=(product.name+' '+product.brand+' '+product.category+' '+product.memory+' '+product.description).toLowerCase(); var score=0; if(q && hay.indexOf(q)>-1) score+=50; if(detectBrand(text)===product.brand) score+=22; if(detectMemory(text) && normalizeText(product.memory).indexOf(normalizeText(detectMemory(text)))>-1) score+=16; if(wantsCamera(text) && /camara|cámara|foto|video/i.test(product.description)) score+=12; if(wantsBattery(text) && /bateria|batería|duraci|aguant/i.test(product.description)) score+=12; if(wantsCheap(text)) score+=Math.max(0,18-Math.round(product.price/250000)); if(budget){ var diff=Math.abs(product.price-budget); score+=Math.max(0,26-Math.round(diff/120000)); if(product.price<=budget) score+=18; } if(/disponible/i.test(product.status)) score+=6; return score; }
+    function recommendProducts(text, limit){ var published=state.data.products.filter(function(p){ return p.published; }); if(!published.length) return []; var budget=parseBudget(text); var brand=detectBrand(text); var memory=detectMemory(text); var list=published.slice(); if(brand) list=list.filter(function(p){ return p.brand===brand; }); if(memory) list=list.filter(function(p){ return normalizeText(p.memory).indexOf(normalizeText(memory))>-1; }); if(budget) list=list.filter(function(p){ return p.price<=Math.round(budget*1.15); }); if(!list.length) list=published.slice(); list.sort(function(a,b){ return productScore(b,text,budget)-productScore(a,text,budget) || a.price-b.price; }); return list.slice(0, limit||3); }
+    function productSummaryLine(product){ return product.name+' de '+product.brand+' ('+product.memory+') por '+money(product.price)+'. '+product.description; }
+    function productFormDefaults(){ return { name:'Galaxy A55', brand:'Samsung', category:'Samsung', memory:'256GB', price:'1899000', description:'Ejemplo: pantalla AMOLED, buena batería y cámara estable para redes, trabajo y contenido.', image:'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=900&q=80' }; }
+    function showToast(msg){ var t=$('toast'); t.textContent=msg; t.classList.remove('hide'); clearTimeout(showToast._t); showToast._t=setTimeout(function(){t.classList.add('hide');},2200); }
+    function safe(text){ return String(text||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+    function uid(){ return 'id'+Math.random().toString(36).slice(2,10)+Date.now().toString(36); }
+    function defaultData(){
+      return {
+        site:{name:'TeBno',tagline:'Celulares y tecnología',heroBadge:'Tienda online lista para vender',heroTitle:'Celulares, promociones y atención rápida en un solo lugar',heroSubtitle:'Muestra tus equipos con mejor presencia visual, más espacios de confianza y contacto directo por WhatsApp para cerrar ventas más fácil.',heroPrimaryText:'Ver catálogo',heroSecondaryText:'Pedir por WhatsApp',highlightTitle:'Promos listas para destacar',highlightText:'Usa este bloque para empujar la oferta principal del mes, el lanzamiento destacado o el combo más vendedor.',catalogTitle:'Productos publicados',catalogSubtitle:'Usa el buscador y los filtros para ver precios y referencias.',chatPanelTitle:'Asistencia rápida',offerTitle:'Promociones activas',offerText:'Pregunta por referencias seleccionadas con descuento.',contactText:'Escríbenos para conocer precios, disponibilidad, promociones y asesoría personalizada.',phone:'3202033463',address:'Calle 18 # 4 - 07, Avenida del Hospital',city:'Cali, Colombia',schedule:'Lunes a sábado de 9:00 a. m. a 7:00 p. m.',paymentMethods:'Efectivo, transferencia, Nequi, Daviplata y pagos acordados en tienda.',deliveryInfo:'Entregas locales, envíos nacionales y coordinación por WhatsApp según disponibilidad.',warrantyInfo:'Garantía según referencia, estado del equipo y condiciones acordadas.',tradeInInfo:'Recibimos tu usado como parte de pago según revisión.',instagramUrl:'https://instagram.com/tebno.store',facebookUrl:'https://facebook.com/tebno.store',tiktokUrl:'https://tiktok.com/@tebno.store',footerText:'© 2026 TeBno. Todos los derechos reservados.',footerRight:'Cali, Colombia · Atención rápida',syncNote:'En Netlify, la tienda consulta cambios cada pocos segundos para mostrarlos a otros visitantes.',chatPlaceholder:'Pregunta por precio o referencia',advisorGreeting:'Hola, soy tu asesor virtual de TeBno. Dime el modelo o presupuesto y te ayudo.',advisorEscalation:'Puedo pasar tu caso a un asesor humano por WhatsApp.',floatingAvailableText:'Disponibles',floatingChatText:'Chat',floatingAdvisorText:'Asesor',faq1q:'¿Los equipos tienen garantía?',faq1a:'Sí. La garantía depende de la referencia y del estado del equipo. Puedes aclararla antes de comprar.',faq2q:'¿Manejan equipos seminuevos?',faq2a:'Sí. La tienda puede publicar equipos nuevos o seminuevos y el estado queda visible en cada producto.',faq3q:'¿Hacen envíos?',faq3a:'Sí. Puedes coordinar entrega local o envío nacional por WhatsApp.'},
+        security:{adminPassword:'tebno123',advisorPassword:'asesor123'},
+        products:[
+          {id:uid(),name:'iPhone 13',brand:'Apple',category:'iPhone',price:2699000,status:'Disponible',memory:'128GB',description:'Excelente cámara, rendimiento alto y gran valor de reventa.',image:'https://images.unsplash.com/photo-1632661674596-df8be070a5c5?auto=format&fit=crop&w=900&q=80',published:true,featured:true},
+          {id:uid(),name:'iPhone 11',brand:'Apple',category:'iPhone',price:1899000,status:'Seminuevo',memory:'128GB',description:'Muy buen equilibrio entre cámara, rendimiento y precio.',image:'https://images.unsplash.com/photo-1591337676887-a217a6970a8a?auto=format&fit=crop&w=900&q=80',published:true,featured:false},
+          {id:uid(),name:'Samsung S23',brand:'Samsung',category:'Samsung',price:2899000,status:'Disponible',memory:'256GB',description:'Pantalla premium y cámara muy sólida.',image:'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=900&q=80',published:true,featured:true},
+          {id:uid(),name:'Samsung A25',brand:'Samsung',category:'Samsung',price:1299000,status:'Nuevo',memory:'256GB',description:'Buena batería, pantalla fluida y precio competitivo.',image:'https://images.unsplash.com/photo-1616348436168-de43ad0db179?auto=format&fit=crop&w=900&q=80',published:true,featured:false},
+          {id:uid(),name:'Redmi Note 13',brand:'Xiaomi',category:'Xiaomi',price:1199000,status:'Disponible',memory:'256GB',description:'Buen precio, buena batería y desempeño equilibrado.',image:'https://images.unsplash.com/photo-1580910051074-3eb694886505?auto=format&fit=crop&w=900&q=80',published:true,featured:true},
+          {id:uid(),name:'Poco X6',brand:'Xiaomi',category:'Xiaomi',price:1699000,status:'Nuevo',memory:'256GB',description:'Potencia alta para juegos, pantalla llamativa y buena carga.',image:'https://images.unsplash.com/photo-1610792516307-ea5acd9c3b00?auto=format&fit=crop&w=900&q=80',published:true,featured:false},
+          {id:uid(),name:'Motorola G84',brand:'Motorola',category:'Motorola',price:999000,status:'Disponible',memory:'256GB',description:'Ideal para uso diario y presupuesto ajustado.',image:'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?auto=format&fit=crop&w=900&q=80',published:true,featured:false},
+          {id:uid(),name:'Motorola Edge 40',brand:'Motorola',category:'Motorola',price:1799000,status:'Seminuevo',memory:'256GB',description:'Diseño premium, buen rendimiento y carga rápida.',image:'https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=900&q=80',published:true,featured:false},
+          {id:uid(),name:'Honor X8b',brand:'Honor',category:'Honor',price:1399000,status:'Nuevo',memory:'256GB',description:'Buena pantalla, equipo liviano y cámara frontal destacada.',image:'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=900&q=80',published:true,featured:false},
+          {id:uid(),name:'Infinix Note 40',brand:'Infinix',category:'Infinix',price:1149000,status:'Disponible',memory:'256GB',description:'Opción económica con buena batería y bastante memoria.',image:'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?auto=format&fit=crop&w=900&q=80',published:true,featured:false},
+          {id:uid(),name:'iPhone 14',brand:'Apple',category:'iPhone',price:3399000,status:'Disponible',memory:'256GB',description:'Más potencia, mejor cámara y excelente presencia para quien quiere subir de nivel.',image:'https://images.unsplash.com/photo-1663499482588-1d9b9a52aca4?auto=format&fit=crop&w=900&q=80',published:true,featured:true},
+          {id:uid(),name:'Samsung A15',brand:'Samsung',category:'Samsung',price:949000,status:'Nuevo',memory:'256GB',description:'Opción económica con buena batería y pantalla ideal para uso diario.',image:'https://images.unsplash.com/photo-1610792516307-ea5acd9c3b00?auto=format&fit=crop&w=900&q=80',published:true,featured:false},
+          {id:uid(),name:'Oppo Reno 11F',brand:'Oppo',category:'Oppo',price:1799000,status:'Disponible',memory:'256GB',description:'Diseño elegante, buena cámara y experiencia fluida para redes y trabajo.',image:'https://images.unsplash.com/photo-1567581935884-3349723552ca?auto=format&fit=crop&w=900&q=80',published:true,featured:false},
+          {id:uid(),name:'Tecno Spark 20 Pro',brand:'Tecno',category:'Tecno',price:929000,status:'Nuevo',memory:'256GB',description:'Buena memoria y precio atractivo para clientes de presupuesto controlado.',image:'https://images.unsplash.com/photo-1523206489230-c012c64b2b48?auto=format&fit=crop&w=900&q=80',published:true,featured:false},
+          {id:uid(),name:'Redmi 13C',brand:'Xiaomi',category:'Xiaomi',price:759000,status:'Disponible',memory:'256GB',description:'Muy buscado por precio, batería duradera y buen rendimiento para el día a día.',image:'https://images.unsplash.com/photo-1605236453806-6ff36851218e?auto=format&fit=crop&w=900&q=80',published:true,featured:false}
+        ],
+        testimonials:[
+          {id:uid(),name:'Laura M.',title:'Muy buena atención',text:'Me respondieron rápido y el equipo salió muy bueno.'},
+          {id:uid(),name:'Andrés C.',title:'Buenos precios',text:'Comparé con varias tiendas y aquí encontré mejor precio.'},
+          {id:uid(),name:'Karina P.',title:'Lo recomiendo',text:'Compré un iPhone seminuevo y llegó en muy buen estado.'}
+        ],
+        categories:['Todas','iPhone','Samsung','Xiaomi','Motorola','Honor','Infinix','Oppo','Tecno'],
+        analytics:{dailyVisits:{},dailySearches:{},topSearches:{},chatInterests:{},chatLogs:[],advisorNotes:[]},
+        inquiries:[],
+        toggles:{showOffers:true,showOpinions:true,showFloatingAvailable:true,showFloatingChat:true,showFloatingAdvisor:true,showFeatured:true,showBrands:true,showBenefits:true,showFaqs:true},
+        updatedAt:null
+      };
+    }
+    function mergeData(remote){ var base=defaultData(); if(!remote) return base; function merge(a,b){ for(var k in b){ if(b[k] && typeof b[k]==='object' && !Array.isArray(b[k])){ if(!a[k]||typeof a[k]!=='object'||Array.isArray(a[k])) a[k]={}; merge(a[k],b[k]); } else if(a[k]===undefined){ a[k]=b[k]; } } return a; } var merged=merge(remote,base); merged.categories=unique((merged.categories||[]).concat(base.categories||[])); merged.products=(merged.products||[]).slice(); (base.products||[]).forEach(function(p){ if(!merged.products.some(function(x){ return x.name===p.name; })) merged.products.push(p); }); merged.testimonials=(merged.testimonials||[]).slice(); (base.testimonials||[]).forEach(function(t){ if(!merged.testimonials.some(function(x){ return x.title===t.title && x.name===t.name; })) merged.testimonials.push(t); }); return merged; }
+    function setSyncMode(mode, note){
+      var map={
+        live:{ hero:'En línea', badge:'Netlify en vivo', note:note || 'Los cambios guardados se reflejan para otros visitantes en segundos.' },
+        syncing:{ hero:'Sincronizando', badge:'Guardando cambios', note:note || 'Enviando cambios al servidor de Netlify.' },
+        local:{ hero:'Modo local', badge:'Vista previa local', note:note || 'En esta vista solo ves datos de ejemplo. Para tiempo real usa Netlify con funciones activas.' },
+        error:{ hero:'Sin conexión', badge:'Servidor no disponible', note:note || 'No fue posible hablar con Netlify en este momento.' }
+      };
+      var conf=map[mode] || map.local;
+      syncRuntime.live = mode==='live' || mode==='syncing';
+      if($('syncStateHero')) $('syncStateHero').textContent=conf.hero;
+      if($('syncModeHero')) $('syncModeHero').textContent=conf.badge;
+      if($('syncModeBadge')) $('syncModeBadge').textContent=conf.badge;
+      if($('syncNote')) $('syncNote').textContent=conf.note;
+    }
+    function notifySync(kind, updatedAt){
+      if(!syncChannel) return;
+      try{ syncChannel.postMessage({kind:kind||'update', updatedAt:updatedAt||''}); }catch(e){}
+    }
+    async function api(action, payload){
+      var opts={method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:action,payload:payload||{}})};
+      var res=await fetch(API,opts); if(!res.ok){ throw new Error('Error '+res.status); } return await res.json();
+    }
+    async function loadData(){
+      try{ var res=await api('getData'); state.data=mergeData(res.data); syncRuntime.lastRemoteAt = state.data.updatedAt || ''; renderAll(); setSyncMode('live'); }
+      catch(e){ if(!state.data){ state.data=defaultData(); renderAll(); } setSyncMode('local'); showToast('Vista previa local. Para tiempo real, publícalo en Netlify con funciones activas.'); }
+    }
+    async function saveData(reason){
+      if(!state.data) return;
+      state.data.updatedAt = new Date().toISOString();
+      setSyncMode('syncing');
+      try{ var res=await api('saveData',{data:state.data,reason:reason||'update'}); state.data=mergeData(res.data); syncRuntime.lastRemoteAt = state.data.updatedAt || ''; renderAll(); setSyncMode('live'); notifySync('save', state.data.updatedAt); showToast('Guardado en Netlify'); }
+      catch(e){ setSyncMode(syncRuntime.live ? 'live' : 'error'); showToast('No se pudo guardar en servidor'); }
+    }
+    async function logVisit(){ try{ await api('logVisit',{path:location.pathname}); }catch(e){} }
+    async function logSearch(term){ if(!term) return; try{ await api('logSearch',{term:term}); }catch(e){} }
+    async function logChat(msg){ if(!msg) return; try{ await api('logChat',{message:msg}); }catch(e){} }
+    function updateSyncLabel(){ var txt = state.data && state.data.updatedAt ? new Date(state.data.updatedAt).toLocaleString('es-CO') : '—'; $('syncLabel').textContent=txt; if(!state.data || !state.data.updatedAt){ setSyncMode(syncRuntime.live ? 'live' : 'local'); } }
+    function renderSite(){ var s=state.data.site, t=state.data.toggles; $('siteNameHeader').textContent=s.name; if($('brandHeaderLogo')) $('brandHeaderLogo').src=s.logoUrl||'assets/logo-tebno-placeholder.svg'; if($('brandHeroLogo')) $('brandHeroLogo').src=s.logoUrl||'assets/logo-tebno-placeholder.svg'; $('siteTaglineHeader').textContent=s.tagline; $('heroBadge').textContent=s.heroBadge; $('heroTitle').textContent=s.heroTitle; $('heroSubtitle').textContent=s.heroSubtitle; $('heroPrimaryBtn').textContent=s.heroPrimaryText; $('heroSecondaryBtn').textContent=s.heroSecondaryText; $('highlightTitle').textContent=s.highlightTitle; $('highlightText').textContent=s.highlightText; $('catalogTitle').textContent=s.catalogTitle; $('catalogSubtitle').textContent=s.catalogSubtitle; $('chatPanelTitle').textContent=s.chatPanelTitle; $('offerTitle').textContent=s.offerTitle; $('offerText').textContent=s.offerText; $('contactText').textContent=s.contactText; $('contactPhone').textContent=formatPhoneDisplay(s.phone); $('contactAddress').textContent=s.address; $('contactCity').textContent=s.city || ''; $('contactSchedule').textContent=s.schedule || ''; $('contactPayments').textContent=s.paymentMethods || ''; $('contactDelivery').textContent=s.deliveryInfo || ''; $('contactWarranty').textContent=s.warrantyInfo || ''; $('footerText').textContent=s.footerText; $('footerRight').textContent=s.footerRight; $('syncNote').textContent=s.syncNote; $('chatInput').placeholder=s.chatPlaceholder; $('floatingAvailable').textContent=s.floatingAvailableText; $('floatingChat').textContent=s.floatingChatText; $('floatingAdvisor').textContent=s.floatingAdvisorText; var phoneHref='https://wa.me/57'+String(s.phone).replace(/\D/g,''); $('heroSecondaryBtn').href=phoneHref; $('contactWhatsappBtn').href=phoneHref; if($('ctaWhatsappBtn')) $('ctaWhatsappBtn').href=phoneHref; $('ofertas').classList.toggle('hide',!t.showOffers); $('opiniones').classList.toggle('hide',!t.showOpinions); $('featuredSection').classList.toggle('hide',!t.showFeatured); $('marcas').classList.toggle('hide',!t.showBrands); $('beneficios').classList.toggle('hide',!t.showBenefits); $('faq').classList.toggle('hide',!t.showFaqs); $('floatingAvailable').classList.toggle('hide',!t.showFloatingAvailable); $('floatingChat').classList.toggle('hide',!t.showFloatingChat); $('floatingAdvisor').classList.toggle('hide',!t.showFloatingAdvisor); renderSocialLinks(); updateSyncLabel(); }
+    function renderSocialLinks(){ var s=state.data.site; var links=[]; if(s.instagramUrl) links.push('<a href="'+safe(s.instagramUrl)+'" target="_blank" rel="noreferrer">Instagram</a>'); if(s.facebookUrl) links.push('<a href="'+safe(s.facebookUrl)+'" target="_blank" rel="noreferrer">Facebook</a>'); if(s.tiktokUrl) links.push('<a href="'+safe(s.tiktokUrl)+'" target="_blank" rel="noreferrer">TikTok</a>'); $('socialLinks').innerHTML = links.length ? links.join('') : '<span class="muted">Agrega tus redes desde el panel admin.</span>'; }
+    function renderCategories(){ var box=$('categoryTabs'); box.innerHTML=''; state.data.categories.forEach(function(cat){ var b=document.createElement('button'); b.type='button'; b.className='tab'+(state.currentCategory===cat?' active':''); b.textContent=cat; b.onclick=function(){ state.currentCategory=cat; renderProducts(); }; box.appendChild(b); }); }
+    function filteredProducts(){ var txt=($('searchInput').value||'').toLowerCase().trim(); var brand=$('brandFilter').value||'Todas'; var memory=$('memoryFilter').value||'Todas'; var status=$('statusFilter').value||'Todos'; var price=$('priceFilter').value||'Todos'; return state.data.products.filter(function(p){ if(!p.published) return false; var ok = (p.name+' '+p.brand+' '+p.category+' '+p.memory+' '+p.description+' '+p.status).toLowerCase().indexOf(txt)>-1; if(brand!=='Todas') ok = ok && p.brand===brand; if(memory!=='Todas') ok = ok && p.memory===memory; if(status!=='Todos') ok = ok && p.status===status; if(state.currentCategory!=='Todas') ok = ok && p.category===state.currentCategory; if(price!=='Todos'){ var parts=price.split('-'); var min=+parts[0], max=+parts[1]; ok = ok && p.price>=min && p.price<=max; } return ok; }); }
+    function renderProducts(){ var products=filteredProducts(); $('resultCount').textContent=products.length; $('noResults').classList.toggle('hide', products.length!==0); var grid=$('productGrid'); grid.innerHTML=''; products.forEach(function(p){ var el=document.createElement('article'); el.className='panel product'; el.innerHTML='<div class="product-img"><img loading="lazy" src="'+safe(p.image)+'" alt="'+safe(p.name)+'"></div><div class="product-body"><div class="product-top"><span class="pill">'+safe(p.brand)+'</span><span class="status" style="color:'+(p.status==='Disponible'?'#86efac':'#fcd34d')+'">'+safe(p.status)+'</span></div><h3 style="margin:12px 0 0;font-size:30px;line-height:1;font-weight:900">'+safe(p.name)+'</h3><div class="badge-row"><span class="badge-soft">'+safe(p.memory)+'</span><span class="badge-soft">'+safe(p.category)+'</span>'+(p.featured?'<span class="badge-soft">Destacado</span>':'')+'</div><div class="muted" style="margin-top:10px">'+safe(p.description)+'</div><div class="price">'+money(p.price)+'</div><div class="helper-text" style="margin-top:6px">Estado: '+safe(p.status)+' · Ideal para cotizar rápido y cerrar por WhatsApp.</div><div class="old-grid" style="margin-top:14px"><button class="btn btn-primary" type="button" data-add="'+p.id+'">Agregar</button><button class="btn btn-soft" type="button" data-ask="'+p.id+'">Consultar</button></div></div>'; grid.appendChild(el); }); qsa('[data-add]').forEach(function(b){ b.onclick=function(){ addToCart(this.getAttribute('data-add')); }; }); qsa('[data-ask]').forEach(function(b){ b.onclick=function(){ var p=findProduct(this.getAttribute('data-ask')); $('chatInput').value='Quiero información del '+p.name; sendChat(); }; }); $('availableStats').textContent=products.length+' equipos visibles ahora mismo. Publicados: '+state.data.products.filter(function(p){return p.published;}).length+'.'; }
+    function renderBrandFilter(){ var brands=['Todas'].concat(unique(state.data.products.map(function(p){return p.brand;})).sort()); $('brandFilter').innerHTML=brands.map(function(b){ return '<option value="'+safe(b)+'">'+safe(b)+'</option>'; }).join(''); }
+    function renderMemoryFilter(){ var memories=['Todas'].concat(unique(state.data.products.map(function(p){return p.memory;})).sort(function(a,b){ return parseInt(a,10)-parseInt(b,10); })); $('memoryFilter').innerHTML=memories.map(function(m){ return '<option value="'+safe(m)+'">'+safe(m)+'</option>'; }).join(''); }
+    function renderStatusFilter(){ var statuses=['Todos'].concat(unique(state.data.products.map(function(p){return p.status;})).sort()); $('statusFilter').innerHTML=statuses.map(function(s){ return '<option value="'+safe(s)+'">'+safe(s)+'</option>'; }).join(''); }
+    function unique(arr){ return arr.filter(function(v,i,a){ return a.indexOf(v)===i; }); }
+    function renderFeatured(){ var box=$('featuredGrid'); var items=state.data.products.filter(function(p){ return p.published && p.featured; }).slice(0,4); if(!items.length){ box.innerHTML='<div class="panel panel-pad">No hay productos destacados todavía.</div>'; return; } box.innerHTML=items.map(function(p){ return '<div class="panel panel-pad"><div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Destacado</div><div style="font-size:28px;font-weight:900;margin-top:8px">'+safe(p.name)+'</div><div class="muted" style="margin-top:8px">'+safe(p.description)+'</div><div class="badge-row" style="margin-top:12px"><span class="badge-soft">'+safe(p.brand)+'</span><span class="badge-soft">'+safe(p.memory)+'</span><span class="badge-soft">'+safe(p.status)+'</span></div><div class="price" style="margin-top:12px">'+money(p.price)+'</div></div>'; }).join(''); }
+    function renderBrands(){ var box=$('brandsGrid'); var grouped={}; state.data.products.filter(function(p){ return p.published; }).forEach(function(p){ if(!grouped[p.brand]) grouped[p.brand]={count:0, min:p.price}; grouped[p.brand].count++; grouped[p.brand].min=Math.min(grouped[p.brand].min,p.price); }); var brands=Object.keys(grouped).sort(); box.innerHTML = brands.map(function(brand){ var info=grouped[brand]; return '<div class="brand-card"><div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Marca</div><strong>'+safe(brand)+'</strong><div class="muted" style="margin-top:10px">Opciones visibles para distintos presupuestos y perfiles.</div><div class="brand-meta"><span>'+info.count+' referencias</span><span>Desde '+money(info.min)+'</span></div></div>'; }).join(''); }
+    
+function renderBusinessOptions(){
+  var s=state.data.site;
+  $('businessOptionsGrid').innerHTML = [
+    ['Métodos de pago', s.paymentMethods],
+    ['Envíos y entrega', s.deliveryInfo],
+    ['Garantía', s.warrantyInfo],
+    ['Usado como parte de pago', s.tradeInInfo],
+    ['Horario de atención', s.schedule],
+    ['Asesoría', s.contactText]
+  ].map(function(item){
+    return '<div class="info-card"><div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">'+safe(item[0])+'</div><strong>'+safe(item[0])+'</strong><div class="muted" style="margin-top:10px">'+safe(item[1])+'</div></div>';
+  }).join('');
+}
+function renderFaqs(){ var s=state.data.site; var faqs=[[s.faq1q,s.faq1a],[s.faq2q,s.faq2a],[s.faq3q,s.faq3a]]; $('faqGrid').innerHTML = faqs.map(function(item){ return '<div class="faq-item"><div class="small" style="color:#be123c;font-weight:800;text-transform:uppercase">FAQ</div><strong>'+safe(item[0])+'</strong><div class="muted" style="margin-top:10px;color:#4b5563">'+safe(item[1])+'</div></div>'; }).join(''); }
+    function renderTestimonials(){ $('testimonialsGrid').innerHTML = state.data.testimonials.map(function(t){ return '<div class="panel panel-pad" style="background:#fff;color:#111827"><div class="stars">★★★★★</div><div style="font-size:22px;font-weight:900;margin-top:10px">“'+safe(t.title)+'”</div><div style="margin-top:10px;color:#4b5563">'+safe(t.text)+'</div><div style="margin-top:14px;font-weight:800;color:#be123c">— '+safe(t.name)+'</div></div>'; }).join(''); }
+    function findProduct(id){ return state.data.products.filter(function(p){ return p.id===id; })[0]; }
+    function addToCart(id){ var p=findProduct(id); if(!p) return; var item=state.cart.filter(function(i){ return i.id===id; })[0]; if(item){ item.qty +=1; } else { state.cart.push({id:id,qty:1}); } renderCartBadge(); showToast('Agregado al carrito'); }
+    function renderCartBadge(){ var count=state.cart.reduce(function(a,b){return a+b.qty;},0); $('cartCount').textContent=count; }
+    function openModal(id){ $(id).classList.add('open'); }
+    function closeModal(id){ $(id).classList.remove('open'); }
+    function renderCart(){ var box=$('cartList'); box.innerHTML=''; if(!state.cart.length){ box.innerHTML='<div class="notice">No hay productos en el carrito.</div>'; $('cartTotal').textContent=money(0); return; } var total=0; state.cart.forEach(function(it){ var p=findProduct(it.id); if(!p) return; total += p.price*it.qty; var row=document.createElement('div'); row.className='product-row'; row.innerHTML='<div class="thumb"><img src="'+safe(p.image)+'" alt="'+safe(p.name)+'"></div><div><div style="font-size:22px;font-weight:900">'+safe(p.name)+'</div><div class="muted">'+money(p.price)+' · Cantidad: '+it.qty+'</div></div><div class="row"><button class="btn btn-soft" type="button" data-minus="'+p.id+'">-</button><button class="btn btn-danger" type="button" data-del="'+p.id+'">Quitar</button></div>'; box.appendChild(row); }); $('cartTotal').textContent=money(total); qsa('[data-minus]',box).forEach(function(b){ b.onclick=function(){ var id=this.getAttribute('data-minus'); var it=state.cart.filter(function(i){return i.id===id;})[0]; if(it){ it.qty--; if(it.qty<=0) state.cart=state.cart.filter(function(i){return i.id!==id;}); renderCart(); renderCartBadge(); } }; }); qsa('[data-del]',box).forEach(function(b){ b.onclick=function(){ var id=this.getAttribute('data-del'); state.cart=state.cart.filter(function(i){return i.id!==id;}); renderCart(); renderCartBadge(); }; }); }
+    function initialBotMessage(){ if(!state.chats.length){ state.chats.push({role:'bot',text:state.data.site.advisorGreeting}); renderChatMessages(); } }
+    function renderChatMessages(){ var box=$('chatMessages'); box.innerHTML = state.chats.map(function(m){ return '<div class="msg '+m.role+'">'+safe(m.text)+'</div>'; }).join(''); box.scrollTop=box.scrollHeight; }
+    function smartReply(text){
+      var q=normalizeText(text);
+      if(/hola|buenas|buenos dias|buenas tardes|buenas noches/.test(q)){
+        return state.data.site.advisorGreeting+' Puedes escribir algo como: "iPhone por 2 millones", "Samsung con buena cámara" o "el más económico".';
+      }
+      if(/asesor|humano|whatsapp/.test(q)){
+        return state.data.site.advisorEscalation;
+      }
+      var recs=recommendProducts(text,3);
+      if(recs.length){
+        if(recs.length===1){
+          return 'Te recomiendo '+productSummaryLine(recs[0])+' Estado: '+recs[0].status+'.';
+        }
+        return 'Estas opciones encajan bien con lo que pides:\n1. '+productSummaryLine(recs[0])+'\n2. '+productSummaryLine(recs[1])+(recs[2] ? '\n3. '+productSummaryLine(recs[2]) : '')+'\n\nSi quieres, te comparo las mejores según cámara, batería o presupuesto.';
+      }
+      return 'No encontré una referencia exacta con ese texto. '+state.data.site.advisorEscalation+' También puedes escribir marca, memoria o presupuesto.';
+    }
+    async function sendChat(){ var txt=$('chatInput').value.trim(); if(!txt) return; state.chats.push({role:'user',text:txt}); state.chats.push({role:'bot',text:smartReply(txt)}); $('chatInput').value=''; renderChatMessages(); logChat(txt); }
+    function whatsappMessageForCart(){ var items=state.cart.map(function(it){ var p=findProduct(it.id); return '- '+p.name+' x'+it.qty+' ('+money(p.price)+')'; }).join('%0A'); return 'Hola, quiero comprar:%0A'+items+'%0A%0ATotal: '+encodeURIComponent($('cartTotal').textContent); }
+    function whatsappMessageForAdvisor(){ var last=state.chats.slice(-6).map(function(m){ return (m.role==='user'?'Cliente':'Bot')+': '+m.text; }).join('\n'); return 'Hola, necesito apoyo con esta consulta:%0A%0A'+encodeURIComponent(last); }
+    function renderAnalytics(){ var a=state.data.analytics || {}; var dk=dayKey(); $('visitsToday').textContent = (a.dailyVisits&&a.dailyVisits[dk]) || 0; $('searchesToday').textContent = (a.dailySearches&&a.dailySearches[dk]) || 0; var chats = (a.chatLogs||[]).filter(function(r){ return (r.date||'').slice(0,10)===dk; }).length; $('chatsToday').textContent = chats; var topS = topEntries(a.topSearches||{},5); $('topSearches').innerHTML = topS.length ? topS.map(renderKV).join('') : '<div class="notice">Sin búsquedas todavía.</div>'; var topI= topEntries(a.chatInterests||{},5); $('topInterests').innerHTML = topI.length ? topI.map(renderKV).join('') : '<div class="notice">Sin intereses todavía.</div>'; }
+    function topEntries(obj,limit){ return Object.keys(obj).map(function(k){ return {k:k,v:obj[k]}; }).sort(function(a,b){ return b.v-a.v; }).slice(0,limit); }
+    function renderKV(x){ return '<div class="notice" style="display:flex;justify-content:space-between;gap:10px"><span>'+safe(x.k)+'</span><strong>'+x.v+'</strong></div>'; }
+    function renderAdmin(){
+      var tabs=[['productos','Productos'],['inicio','Inicio y contacto'],['catalogo','Catálogo y chat'],['personalizacion','Personalización extra'],['opiniones','Opiniones'],['diseno','Diseño visual'],['seguridad','Seguridad'],['estadisticas','Estadísticas'],['publicacion','Publicación']];
+      $('adminTabs').innerHTML = tabs.map(function(t){ return '<button class="tab '+(state.activeAdminTab===t[0]?'active':'')+'" data-admin-tab="'+t[0]+'" type="button">'+t[1]+'</button>'; }).join('');
+      qsa('[data-admin-tab]').forEach(function(b){ b.onclick=function(){ state.activeAdminTab=this.getAttribute('data-admin-tab'); renderAdmin(); }; });
+      var box=$('adminSections'), s=state.data.site, t=state.data.toggles;
+      var html='';
+      if(state.activeAdminTab==='productos') html += productsAdminHtml();
+      if(state.activeAdminTab==='inicio') html += '<div class="cards-2"><div class="panel panel-pad list">'+fieldText('siteName','Nombre de la tienda',s.name)+fieldText('siteTagline','Texto debajo del logo',s.tagline)+fieldText('heroBadgeInput','Etiqueta superior',s.heroBadge)+fieldTextArea('heroTitleInput','Título principal',s.heroTitle)+fieldTextArea('heroSubtitleInput','Subtítulo',s.heroSubtitle)+fieldText('contactPhoneInput','Teléfono',s.phone)+fieldTextArea('contactAddressInput','Dirección',s.address)+fieldText('contactCityInput','Ciudad',s.city)+fieldText('contactScheduleInput','Horario',s.schedule)+fieldTextArea('contactTextInput','Texto de contacto',s.contactText)+'<button id="saveInicioBtn" class="btn btn-primary" type="button">Guardar inicio y contacto</button></div><div class="panel panel-pad list">'+fieldText('heroBtn1','Botón principal',s.heroPrimaryText)+fieldText('heroBtn2','Botón WhatsApp',s.heroSecondaryText)+fieldText('footerTextInput','Footer izquierdo',s.footerText)+fieldText('footerRightInput','Footer derecho',s.footerRight)+fieldText('highlightTitleInput','Título destacado',s.highlightTitle)+fieldTextArea('highlightTextInput','Texto destacado',s.highlightText)+fieldText('instagramUrlInput','Instagram URL',s.instagramUrl)+fieldText('facebookUrlInput','Facebook URL',s.facebookUrl)+fieldText('tiktokUrlInput','TikTok URL',s.tiktokUrl)+'<button id="saveBrandingBtn" class="btn btn-primary" type="button">Guardar textos principales</button></div></div>';
+      if(state.activeAdminTab==='catalogo') html += '<div class="cards-2"><div class="panel panel-pad list">'+fieldText('catalogTitleInput','Título catálogo',s.catalogTitle)+fieldText('catalogSubtitleInput','Subtítulo catálogo',s.catalogSubtitle)+fieldText('chatPanelTitleInput','Título chat',s.chatPanelTitle)+fieldText('chatPlaceholderInput','Placeholder chat',s.chatPlaceholder)+fieldText('advisorGreetingInput','Saludo IA asesor',s.advisorGreeting)+fieldTextArea('advisorEscalationInput','Mensaje para escalar a asesor',s.advisorEscalation)+'<button id="saveCatalogBtn" class="btn btn-primary" type="button">Guardar catálogo y chat</button></div><div class="panel panel-pad list">'+fieldText('offerTitleInput','Título ofertas',s.offerTitle)+fieldTextArea('offerTextInput','Texto ofertas',s.offerText)+toggleField('toggleOffers','Mostrar ofertas',t.showOffers)+toggleField('toggleFeatured','Mostrar colección destacada',t.showFeatured)+toggleField('toggleBrands','Mostrar sección marcas',t.showBrands)+toggleField('toggleBenefits','Mostrar opciones de compra',t.showBenefits)+toggleField('toggleFaqs','Mostrar preguntas frecuentes',t.showFaqs)+toggleField('toggleFloatingAvailable','Mostrar botón disponibles',t.showFloatingAvailable)+toggleField('toggleFloatingChat','Mostrar botón chat',t.showFloatingChat)+toggleField('toggleFloatingAdvisor','Mostrar botón asesor',t.showFloatingAdvisor)+fieldText('floatingAvailableInput','Texto botón disponibles',s.floatingAvailableText)+fieldText('floatingChatInput','Texto botón chat',s.floatingChatText)+fieldText('floatingAdvisorInput','Texto botón asesor',s.floatingAdvisorText)+'<button id="saveCatalogTogglesBtn" class="btn btn-primary" type="button">Guardar opciones del catálogo</button></div></div>';
+      if(state.activeAdminTab==='personalizacion') html += '<div class="cards-2"><div class="panel panel-pad list">'+fieldTextArea('paymentMethodsInput','Métodos de pago',s.paymentMethods)+fieldTextArea('deliveryInfoInput','Texto de envíos',s.deliveryInfo)+fieldTextArea('warrantyInfoInput','Texto de garantía',s.warrantyInfo)+fieldTextArea('tradeInInfoInput','Texto usado como parte de pago',s.tradeInInfo)+'<button id="saveBusinessInfoBtn" class="btn btn-primary" type="button">Guardar opciones de compra</button></div><div class="panel panel-pad list">'+fieldText('faq1qInput','FAQ 1 pregunta',s.faq1q)+fieldTextArea('faq1aInput','FAQ 1 respuesta',s.faq1a)+fieldText('faq2qInput','FAQ 2 pregunta',s.faq2q)+fieldTextArea('faq2aInput','FAQ 2 respuesta',s.faq2a)+fieldText('faq3qInput','FAQ 3 pregunta',s.faq3q)+fieldTextArea('faq3aInput','FAQ 3 respuesta',s.faq3a)+'<button id="saveFaqBtn" class="btn btn-primary" type="button">Guardar preguntas frecuentes</button></div></div>';
+      if(state.activeAdminTab==='opiniones') html += '<div class="cards-2"><div class="panel panel-pad list">'+toggleField('toggleOpinions','Mostrar opiniones',t.showOpinions)+'<div id="testimonialAdminList" class="list"></div><button id="addTestimonialBtn" class="btn btn-primary" type="button">Agregar opinión</button></div><div class="panel panel-pad list"><div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Administrar opiniones</div><div class="muted">Edita o elimina testimonios para mantener la página actualizada.</div></div></div>';
+      if(state.activeAdminTab==='diseno') html += '<div class="cards-2"><div class="panel panel-pad list">'+fieldText('syncNoteInput','Mensaje de sincronización',s.syncNote)+fieldText('logoUrlInput','URL del logo o ruta local',s.logoUrl||'assets/logo-tebno-placeholder.svg')+'<div class="row"><label class="btn btn-soft" for="logoFileInput">Subir logo</label><input id="logoFileInput" type="file" accept="image/*,.svg" style="display:none"></div><div class="notice">Si no tienes logo real todavía, puedes dejar el que viene de ejemplo.</div><div class="notice">Cuando tengas tu logo final, súbelo aquí y se actualiza en la cabecera y el hero.</div><button id="saveDesignBtn" class="btn btn-primary" type="button">Guardar diseño visual</button></div><div class="panel panel-pad list"><div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Categorías</div><div id="categoryAdminList" class="list"></div><div class="row"><input id="newCategoryInput" class="input" placeholder="Nueva categoría"><button id="addCategoryBtn" class="btn btn-primary" type="button">Agregar</button></div></div></div>';
+      if(state.activeAdminTab==='seguridad') html += '<div class="cards-2"><div class="panel panel-pad list">'+fieldText('adminNewPassword','Nueva contraseña admin',state.data.security.adminPassword,'password')+'<button id="saveAdminPassBtn" class="btn btn-primary" type="button">Cambiar contraseña admin</button></div><div class="panel panel-pad list">'+fieldText('advisorNewPassword','Nueva contraseña asesor',state.data.security.advisorPassword,'password')+'<button id="saveAdvisorPassBtn" class="btn btn-primary" type="button">Cambiar contraseña asesor</button></div></div>';
+      if(state.activeAdminTab==='estadisticas') html += '<div class="cards-2"><div class="panel panel-pad list"><div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Resumen del día</div><div class="notice">Visitas: '+$('visitsToday').textContent+'</div><div class="notice">Búsquedas: '+$('searchesToday').textContent+'</div><div class="notice">Chats: '+$('chatsToday').textContent+'</div><button id="refreshStatsBtn" class="btn btn-soft" type="button">Refrescar</button></div><div class="panel panel-pad list"><div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Intereses y búsquedas</div><div id="adminTopSearches" class="list"></div><div id="adminTopInterests" class="list"></div></div></div>';
+      if(state.activeAdminTab==='publicacion') html += '<div class="cards-2"><div class="panel panel-pad list"><div class="notice">Última sincronización: '+($('syncLabel').textContent||'—')+'</div><div class="notice">Estado actual: '+($('syncModeBadge').textContent||'Modo local')+'</div><button id="saveAllBtn" class="btn btn-primary" type="button">Guardar todo ahora</button><button id="refreshFromServerBtn" class="btn btn-soft" type="button">Recargar desde servidor</button><button id="exportBtn" class="btn btn-soft" type="button">Exportar base de datos</button></div><div class="panel panel-pad list"><label class="label">Importar base de datos</label><input id="importFile" type="file" class="input" accept="application/json"><button id="importBtn" class="btn btn-warning" type="button">Importar</button><div class="notice">Para tiempo real verdadero en producción, publica este proyecto con Git o Netlify CLI; el modo de arrastrar carpeta es solo para sitios estáticos.</div></div></div>';
+      box.innerHTML=html; bindAdmin(); }
+    function fieldText(id,label,val,type){ return '<div class="field"><label class="label" for="'+id+'">'+label+'</label><input id="'+id+'" class="input" type="'+(type||'text')+'" value="'+safe(val)+'"></div>'; }
+    function fieldTextArea(id,label,val){ return '<div class="field"><label class="label" for="'+id+'">'+label+'</label><textarea id="'+id+'" class="textarea">'+safe(val)+'</textarea></div>'; }
+    function toggleField(id,label,val){ return '<label class="notice" style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span>'+label+'</span><input id="'+id+'" type="checkbox" '+(val?'checked':'')+'></label>'; }
+    function productsAdminHtml(){ var f=productFormDefaults(); return '<div class="cards-2"><div class="panel panel-pad list">'+fieldText('prodName','Nombre',f.name)+fieldText('prodBrand','Marca',f.brand)+fieldText('prodCategory','Categoría',f.category)+fieldText('prodMemory','Memoria',f.memory)+fieldText('prodPrice','Precio',f.price)+fieldTextArea('prodDesc','Descripción',f.description)+fieldText('prodImage','Imagen URL o pega una imagen luego',f.image)+'<div class="helper-text">Estos campos quedan llenos como ejemplo. Puedes reemplazarlos antes de guardar.</div><div class="row"><label class="btn btn-soft" for="prodImageFile">Subir imagen</label><input id="prodImageFile" type="file" accept="image/*" style="display:none"></div><label class="notice" style="display:flex;align-items:center;justify-content:space-between"><span>Publicar de inmediato</span><input id="prodPublished" type="checkbox" checked></label><label class="notice" style="display:flex;align-items:center;justify-content:space-between"><span>Marcar destacado</span><input id="prodFeatured" type="checkbox"></label><button id="addProductBtn" class="btn btn-primary" type="button">Agregar producto</button></div><div class="panel panel-pad list"><div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Productos existentes</div><div id="productAdminList" class="list"></div></div></div>'; }
+    function bindAdmin(){
+      var s=state.data.site, t=state.data.toggles;
+      if($('productAdminList')) renderProductAdminList();
+      if($('testimonialAdminList')) renderTestimonialAdminList();
+      if($('categoryAdminList')) renderCategoryAdminList();
+      if($('adminTopSearches')) $('adminTopSearches').innerHTML='<div class="small" style="font-weight:800">Términos</div>'+($('topSearches').innerHTML||'');
+      if($('adminTopInterests')) $('adminTopInterests').innerHTML='<div class="small" style="font-weight:800">Intereses</div>'+($('topInterests').innerHTML||'');
+      if($('saveInicioBtn')) $('saveInicioBtn').onclick=function(){ s.name=$('siteName').value; s.tagline=$('siteTagline').value; s.heroBadge=$('heroBadgeInput').value; s.heroTitle=$('heroTitleInput').value; s.heroSubtitle=$('heroSubtitleInput').value; s.phone=$('contactPhoneInput').value; s.address=$('contactAddressInput').value; s.city=$('contactCityInput').value; s.schedule=$('contactScheduleInput').value; s.contactText=$('contactTextInput').value; renderSite(); saveData('inicio'); };
+      if($('saveBrandingBtn')) $('saveBrandingBtn').onclick=function(){ s.heroPrimaryText=$('heroBtn1').value; s.heroSecondaryText=$('heroBtn2').value; s.footerText=$('footerTextInput').value; s.footerRight=$('footerRightInput').value; s.highlightTitle=$('highlightTitleInput').value; s.highlightText=$('highlightTextInput').value; s.instagramUrl=$('instagramUrlInput').value; s.facebookUrl=$('facebookUrlInput').value; s.tiktokUrl=$('tiktokUrlInput').value; renderSite(); saveData('branding'); };
+      if($('saveCatalogBtn')) $('saveCatalogBtn').onclick=function(){ s.catalogTitle=$('catalogTitleInput').value; s.catalogSubtitle=$('catalogSubtitleInput').value; s.chatPanelTitle=$('chatPanelTitleInput').value; s.chatPlaceholder=$('chatPlaceholderInput').value; s.advisorGreeting=$('advisorGreetingInput').value; s.advisorEscalation=$('advisorEscalationInput').value; renderSite(); initialBotMessage(); saveData('catalog'); };
+      if($('saveCatalogTogglesBtn')) $('saveCatalogTogglesBtn').onclick=function(){ s.offerTitle=$('offerTitleInput').value; s.offerText=$('offerTextInput').value; s.floatingAvailableText=$('floatingAvailableInput').value; s.floatingChatText=$('floatingChatInput').value; s.floatingAdvisorText=$('floatingAdvisorInput').value; t.showOffers=$('toggleOffers').checked; t.showFeatured=$('toggleFeatured').checked; t.showBrands=$('toggleBrands').checked; t.showBenefits=$('toggleBenefits').checked; t.showFaqs=$('toggleFaqs').checked; t.showFloatingAvailable=$('toggleFloatingAvailable').checked; t.showFloatingChat=$('toggleFloatingChat').checked; t.showFloatingAdvisor=$('toggleFloatingAdvisor').checked; renderSite(); saveData('catalog-toggles'); };
+      if($('saveBusinessInfoBtn')) $('saveBusinessInfoBtn').onclick=function(){ s.paymentMethods=$('paymentMethodsInput').value; s.deliveryInfo=$('deliveryInfoInput').value; s.warrantyInfo=$('warrantyInfoInput').value; s.tradeInInfo=$('tradeInInfoInput').value; renderAll(); saveData('business-info'); };
+      if($('saveFaqBtn')) $('saveFaqBtn').onclick=function(){ s.faq1q=$('faq1qInput').value; s.faq1a=$('faq1aInput').value; s.faq2q=$('faq2qInput').value; s.faq2a=$('faq2aInput').value; s.faq3q=$('faq3qInput').value; s.faq3a=$('faq3aInput').value; renderFaqs(); saveData('faq'); };
+      if($('saveDesignBtn')) $('saveDesignBtn').onclick=function(){ s.syncNote=$('syncNoteInput').value; s.logoUrl=$('logoUrlInput').value || 'assets/logo-tebno-placeholder.svg'; renderSite(); saveData('design'); };
+      if($('logoFileInput')) $('logoFileInput').onchange=function(){ var f=this.files[0]; if(!f) return; var r=new FileReader(); r.onload=function(){ $('logoUrlInput').value=r.result; showToast('Logo cargado'); }; r.readAsDataURL(f); };
+      if($('saveAdminPassBtn')) $('saveAdminPassBtn').onclick=function(){ state.data.security.adminPassword=$('adminNewPassword').value||state.data.security.adminPassword; saveData('admin-password'); showToast('Contraseña admin actualizada'); };
+      if($('saveAdvisorPassBtn')) $('saveAdvisorPassBtn').onclick=function(){ state.data.security.advisorPassword=$('advisorNewPassword').value||state.data.security.advisorPassword; saveData('advisor-password'); showToast('Contraseña asesor actualizada'); };
+      if($('refreshStatsBtn')) $('refreshStatsBtn').onclick=renderAnalytics;
+      if($('saveAllBtn')) $('saveAllBtn').onclick=function(){ saveData('manual-save'); };
+      if($('refreshFromServerBtn')) $('refreshFromServerBtn').onclick=function(){ loadData(); showToast('Datos recargados'); };
+      if($('exportBtn')) $('exportBtn').onclick=function(){ var blob=new Blob([JSON.stringify(state.data,null,2)],{type:'application/json'}); var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='TeBno_base_datos.json'; a.click(); URL.revokeObjectURL(a.href); };
+      if($('importBtn')) $('importBtn').onclick=function(){ var f=$('importFile').files[0]; if(!f) return showToast('Elige un archivo JSON'); var r=new FileReader(); r.onload=function(){ try{ state.data=mergeData(JSON.parse(r.result)); renderAll(); saveData('import'); showToast('Base importada'); }catch(e){ showToast('JSON inválido'); } }; r.readAsText(f); };
+      if($('addCategoryBtn')) $('addCategoryBtn').onclick=function(){ var v=$('newCategoryInput').value.trim(); if(!v) return; if(state.data.categories.indexOf(v)===-1) state.data.categories.push(v); $('newCategoryInput').value=''; renderCategories(); renderAdmin(); saveData('category-add'); };
+      if($('addTestimonialBtn')) $('addTestimonialBtn').onclick=function(){ state.data.testimonials.push({id:uid(),name:'Nuevo cliente',title:'Nueva opinión',text:'Escribe aquí la opinión.'}); renderTestimonials(); renderAdmin(); saveData('testimonial-add'); };
+      if($('addProductBtn')) $('addProductBtn').onclick=addProductFromForm;
+      if($('prodImageFile')) $('prodImageFile').onchange=function(){ var f=this.files[0]; if(!f) return; var r=new FileReader(); r.onload=function(){ $('prodImage').value=r.result; showToast('Imagen cargada'); }; r.readAsDataURL(f); };
+    }
+    function renderProductAdminList(){ var box=$('productAdminList'); box.innerHTML=''; state.data.products.forEach(function(p){ var row=document.createElement('div'); row.className='product-row'; row.innerHTML='<div class="thumb"><img src="'+safe(p.image)+'" alt="'+safe(p.name)+'"></div><div><div style="font-size:22px;font-weight:900">'+safe(p.name)+'</div><div class="muted">'+safe(p.brand)+' · '+money(p.price)+' · '+safe(p.category)+' · '+(p.published?'Publicado':'Oculto')+'</div></div><div class="row"><button class="btn btn-soft" type="button" data-edit-prod="'+p.id+'">Editar</button><button class="btn btn-danger" type="button" data-del-prod="'+p.id+'">Borrar</button></div>'; box.appendChild(row); }); qsa('[data-del-prod]',box).forEach(function(b){ b.onclick=function(){ var id=this.getAttribute('data-del-prod'); state.data.products=state.data.products.filter(function(p){return p.id!==id;}); renderAll(); saveData('product-delete'); }; }); qsa('[data-edit-prod]',box).forEach(function(b){ b.onclick=function(){ editProduct(this.getAttribute('data-edit-prod')); }; }); }
+    function editProduct(id){ var p=findProduct(id); if(!p) return; $('prodName').value=p.name; $('prodBrand').value=p.brand; $('prodCategory').value=p.category; $('prodMemory').value=p.memory; $('prodPrice').value=p.price; $('prodDesc').value=p.description; $('prodImage').value=p.image; $('prodPublished').checked=!!p.published; $('prodFeatured').checked=!!p.featured; $('addProductBtn').textContent='Guardar edición'; $('addProductBtn').dataset.edit=id; showToast('Editando producto'); }
+    function resetProductForm(){ var f=productFormDefaults(); $('prodName').value=f.name; $('prodBrand').value=f.brand; $('prodCategory').value=f.category; $('prodMemory').value=f.memory; $('prodPrice').value=f.price; $('prodDesc').value=f.description; $('prodImage').value=f.image; $('prodPublished').checked=true; $('prodFeatured').checked=false; $('addProductBtn').textContent='Agregar producto'; delete $('addProductBtn').dataset.edit; }
+    function addProductFromForm(){ var editId=this.dataset.edit||''; var p={ id: editId || uid(), name:$('prodName').value.trim(), brand:$('prodBrand').value.trim(), category:$('prodCategory').value.trim(), memory:$('prodMemory').value.trim(), price:Number($('prodPrice').value||0), description:$('prodDesc').value.trim(), image:$('prodImage').value.trim()||'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=900&q=80', status:'Disponible', published:$('prodPublished').checked, featured:$('prodFeatured').checked };
+      if(!p.name||!p.brand||!p.category||!p.price) return showToast('Completa nombre, marca, categoría y precio');
+      if(editId){ state.data.products=state.data.products.map(function(x){ return x.id===editId?Object.assign({},x,p):x; }); } else { state.data.products.unshift(p); }
+      if(state.data.categories.indexOf(p.category)===-1) state.data.categories.push(p.category);
+      resetProductForm(); renderAll(); saveData(editId?'product-edit':'product-add'); }
+    function renderTestimonialAdminList(){ var box=$('testimonialAdminList'); box.innerHTML=''; state.data.testimonials.forEach(function(t){ var row=document.createElement('div'); row.className='notice'; row.innerHTML='<div style="font-weight:800">'+safe(t.title)+' · '+safe(t.name)+'</div><textarea class="textarea" data-test-text="'+t.id+'">'+safe(t.text)+'</textarea><div class="row" style="margin-top:8px"><input class="input" data-test-title="'+t.id+'" value="'+safe(t.title)+'"><input class="input" data-test-name="'+t.id+'" value="'+safe(t.name)+'"><button class="btn btn-soft" type="button" data-save-test="'+t.id+'">Guardar</button><button class="btn btn-danger" type="button" data-del-test="'+t.id+'">Borrar</button></div>'; box.appendChild(row); }); qsa('[data-save-test]',box).forEach(function(b){ b.onclick=function(){ var id=this.getAttribute('data-save-test'); var t=state.data.testimonials.filter(function(x){return x.id===id;})[0]; t.title=qsa('[data-test-title="'+id+'"]',box)[0].value; t.name=qsa('[data-test-name="'+id+'"]',box)[0].value; t.text=qsa('[data-test-text="'+id+'"]',box)[0].value; renderTestimonials(); saveData('testimonial-save'); showToast('Opinión guardada'); }; }); qsa('[data-del-test]',box).forEach(function(b){ b.onclick=function(){ var id=this.getAttribute('data-del-test'); state.data.testimonials=state.data.testimonials.filter(function(x){return x.id!==id;}); renderTestimonials(); renderAdmin(); saveData('testimonial-delete'); }; }); }
+    function renderCategoryAdminList(){ var box=$('categoryAdminList'); box.innerHTML=''; state.data.categories.forEach(function(c,i){ if(c==='Todas') return; var row=document.createElement('div'); row.className='notice'; row.innerHTML='<div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><span>'+safe(c)+'</span><button class="btn btn-danger" type="button" data-del-cat="'+i+'">Eliminar</button></div>'; box.appendChild(row); }); qsa('[data-del-cat]',box).forEach(function(b){ b.onclick=function(){ var idx=+this.getAttribute('data-del-cat'); state.data.categories.splice(idx,1); var labelEl=this.parentNode && this.parentNode.querySelector('span'); if(state.currentCategory===((labelEl&&labelEl.textContent)||'')) state.currentCategory='Todas'; renderAll(); saveData('category-delete'); }; }); }
+    function renderAdvisor(){ var tabs=[['consultas','Consultas'],['ia','IA asistida'],['estadisticas','Estadísticas'],['ajustes','Ajustes asesor']]; $('advisorTabs').innerHTML=tabs.map(function(t){ return '<button class="tab '+(state.activeAdvisorTab===t[0]?'active':'')+'" type="button" data-adv-tab="'+t[0]+'">'+t[1]+'</button>'; }).join(''); qsa('[data-adv-tab]').forEach(function(b){ b.onclick=function(){ state.activeAdvisorTab=this.getAttribute('data-adv-tab'); renderAdvisor(); }; }); var html=''; if(state.activeAdvisorTab==='consultas') html+='<div class="cards-2"><div class="panel panel-pad list"><div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Consultas recibidas</div><div id="advisorInquiryList" class="list"></div></div><div class="panel panel-pad list"><div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Responder</div><textarea id="advisorResponseBox" class="textarea" placeholder="Escribe la respuesta para el cliente"></textarea><div class="old-grid"><button id="advisorSuggestBtn" class="btn btn-soft" type="button">Sugerir con IA</button><button id="advisorWhatsappBtn" class="btn btn-primary" type="button">Enviar a WhatsApp</button></div></div></div>';
+      if(state.activeAdvisorTab==='ia') html+='<div class="cards-2"><div class="panel panel-pad list"><div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Sugerencias de IA</div><div class="notice">La IA aquí usa el catálogo y las consultas guardadas. No depende de servicios externos, así que funciona dentro del sitio.</div><textarea id="advisorAiPrompt" class="textarea" placeholder="Ej: Cliente busca iPhone hasta 2 millones">Cliente busca un Samsung con buena cámara y presupuesto cercano a 2 millones.</textarea><button id="advisorAiRun" class="btn btn-primary" type="button">Generar respuesta</button></div><div class="panel panel-pad list"><div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Resultado</div><textarea id="advisorAiOutput" class="textarea" placeholder="Aquí saldrá la sugerencia"></textarea><button id="saveAdvisorNoteBtn" class="btn btn-soft" type="button">Guardar como nota</button></div></div>';
+      if(state.activeAdvisorTab==='estadisticas') html+='<div class="cards-2"><div class="panel panel-pad list"><div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Lo más buscado</div>'+($('topSearches').innerHTML||'')+'</div><div class="panel panel-pad list"><div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Lo que más preguntan</div>'+($('topInterests').innerHTML||'')+'</div></div>';
+      if(state.activeAdvisorTab==='ajustes') html+='<div class="cards-2"><div class="panel panel-pad list">'+fieldText('advisorGreetingEdit','Saludo del asesor/IA',state.data.site.advisorGreeting)+fieldTextArea('advisorEscalationEdit','Mensaje para pasar al humano',state.data.site.advisorEscalation)+'<button id="saveAdvisorTextBtn" class="btn btn-primary" type="button">Guardar textos del asesor</button></div><div class="panel panel-pad list"><div class="small" style="color:#fecdd3;font-weight:800;text-transform:uppercase">Notas internas</div><div id="advisorNotesList" class="list"></div></div></div>';
+      $('advisorSections').innerHTML=html; bindAdvisor(); }
+    function bindAdvisor(){ if($('advisorInquiryList')) renderInquiryList(); if($('advisorNotesList')) renderAdvisorNotes(); if($('advisorSuggestBtn')) $('advisorSuggestBtn').onclick=function(){ var last=state.data.inquiries.slice(-1)[0]; $('advisorResponseBox').value = advisorAiSuggest(last ? last.message : ''); }; if($('advisorWhatsappBtn')) $('advisorWhatsappBtn').onclick=function(){ var txt=$('advisorResponseBox').value.trim(); if(!txt) return showToast('Escribe o genera una respuesta'); window.open('https://wa.me/57'+String(state.data.site.phone).replace(/\D/g,'')+'?text='+encodeURIComponent(txt),'_blank'); };
+      if($('advisorAiRun')) $('advisorAiRun').onclick=function(){ $('advisorAiOutput').value = advisorAiSuggest($('advisorAiPrompt').value); };
+      if($('saveAdvisorNoteBtn')) $('saveAdvisorNoteBtn').onclick=function(){ var txt=$('advisorAiOutput').value.trim(); if(!txt) return; state.data.analytics.advisorNotes.unshift({id:uid(),text:txt,date:new Date().toISOString()}); renderAdvisor(); saveData('advisor-note'); };
+      if($('saveAdvisorTextBtn')) $('saveAdvisorTextBtn').onclick=function(){ state.data.site.advisorGreeting=$('advisorGreetingEdit').value; state.data.site.advisorEscalation=$('advisorEscalationEdit').value; renderSite(); initialBotMessage(); saveData('advisor-text'); };
+    }
+    function advisorAiSuggest(prompt){
+      var recs=recommendProducts(prompt,3);
+      if(!recs.length) return 'No hay productos publicados todavía.';
+      var lines=recs.map(function(p,i){ return (i+1)+'. '+p.name+' - '+money(p.price)+' - '+p.memory+' - '+p.description; });
+      return 'Sugerencia para asesor:\nCliente: '+(prompt||'Consulta general')+'\n\nOpciones recomendadas:\n'+lines.join('\n')+'\n\nCierre sugerido: te comparto estas opciones disponibles y te ayudo a elegir la mejor según cámara, batería o presupuesto.';
+    }
+    function renderInquiryList(){ var box=$('advisorInquiryList'); box.innerHTML=''; var items=state.data.inquiries.slice().reverse(); if(!items.length){ box.innerHTML='<div class="notice">No hay consultas todavía. Ejemplo: "Cliente pregunta por iPhone con 128GB y presupuesto de 2 millones".</div>'; return; } items.forEach(function(i){ var row=document.createElement('div'); row.className='query-row'; row.innerHTML='<div><div style="font-weight:800">'+safe(i.message)+'</div><div class="tiny muted">'+safe(new Date(i.date).toLocaleString('es-CO'))+'</div></div><div class="row"><button class="btn btn-soft" type="button" data-use-query="'+i.id+'">Usar</button></div>'; box.appendChild(row); }); qsa('[data-use-query]',box).forEach(function(b){ b.onclick=function(){ var id=this.getAttribute('data-use-query'); var item=state.data.inquiries.filter(function(i){return i.id===id;})[0]; state.activeAdvisorTab='consultas'; renderAdvisor(); $('advisorResponseBox').value=advisorAiSuggest(item.message); }; }); }
+    function renderAdvisorNotes(){ var box=$('advisorNotesList'); box.innerHTML=''; var notes=state.data.analytics.advisorNotes||[]; if(!notes.length){ box.innerHTML='<div class="notice">Sin notas guardadas.</div>'; return; } notes.slice(0,8).forEach(function(n){ var row=document.createElement('div'); row.className='notice'; row.textContent=new Date(n.date).toLocaleString('es-CO')+' · '+n.text; box.appendChild(row); }); }
+    function renderAll(){ renderSite(); renderBrandFilter(); renderMemoryFilter(); renderStatusFilter(); renderCategories(); renderProducts(); renderFeatured(); renderBrands(); renderBusinessOptions(); renderFaqs(); renderTestimonials(); renderAnalytics(); renderCartBadge(); initialBotMessage(); if(state.adminLogged) renderAdmin(); if(state.advisorLogged) renderAdvisor(); }
+    function bindStatic(){
+      $('searchInput').addEventListener('input', function(){ renderProducts(); clearTimeout(bindStatic._s); var term=this.value.trim(); bindStatic._s=setTimeout(function(){ if(term) logSearch(term); },700); });
+      qsa('[data-search-example]').forEach(function(b){ b.onclick=function(){ $('searchInput').value=this.getAttribute('data-search-example'); renderProducts(); logSearch($('searchInput').value); }; });
+      $('brandFilter').onchange=renderProducts; $('memoryFilter').onchange=renderProducts; $('statusFilter').onchange=renderProducts; $('priceFilter').onchange=renderProducts; $('clearFilters').onclick=function(){ $('searchInput').value=''; $('brandFilter').value='Todas'; $('memoryFilter').value='Todas'; $('statusFilter').value='Todos'; $('priceFilter').value='Todos'; state.currentCategory='Todas'; renderProducts(); renderCategories(); };
+      $('chatSend').onclick=sendChat; $('chatInput').addEventListener('keydown', function(e){ if(e.key==='Enter') sendChat(); }); $('chatClear').onclick=function(){ state.chats=[]; initialBotMessage(); renderChatMessages(); };
+      qsa('[data-chat-example]').forEach(function(b){ b.onclick=function(){ $('chatInput').value=this.getAttribute('data-chat-example'); sendChat(); }; });
+      $('forwardToAdvisorBtn').onclick=async function(){ var last=state.chats.filter(function(m){return m.role==='user';}).slice(-1)[0]; var msg= last ? last.text : $('chatInput').value.trim(); if(!msg) return showToast('No hay consulta para pasar'); var entry={id:uid(),message:msg,date:new Date().toISOString()}; state.data.inquiries.push(entry); renderAdvisor(); saveData('inquiry-add'); window.open('https://wa.me/57'+String(state.data.site.phone).replace(/\D/g,'')+'?text='+whatsappMessageForAdvisor(),'_blank'); showToast('Consulta pasada al asesor'); };
+      $('cartBtn').onclick=function(){ renderCart(); openModal('cartModal'); }; $('cartCheckout').onclick=function(){ window.open('https://wa.me/57'+String(state.data.site.phone).replace(/\D/g,'')+'?text='+whatsappMessageForCart(),'_blank'); };
+      $('openAdminModal').onclick=function(){ openModal('adminModal'); }; $('openAdvisorModal').onclick=function(){ openModal('advisorModal'); }; $('floatingChat').onclick=function(){ location.hash='catalogo'; $('chatInput').focus(); }; $('floatingAdvisor').onclick=function(){ openModal('advisorModal'); }; $('floatingAvailable').onclick=function(){ location.hash='catalogo'; };
+      qsa('[data-close]').forEach(function(b){ b.onclick=function(){ closeModal(this.getAttribute('data-close')); }; });
+      $('adminLogin').onclick=function(){ if(($('adminPassword').value||'')===state.data.security.adminPassword){ state.adminLogged=true; $('adminLoginBox').classList.add('hide'); $('adminPanel').classList.remove('hide'); renderAdmin(); showToast('Ingreso admin correcto'); } else showToast('Clave admin incorrecta'); };
+      $('advisorLogin').onclick=function(){ if(($('advisorPassword').value||'')===state.data.security.advisorPassword){ state.advisorLogged=true; $('advisorLoginBox').classList.add('hide'); $('advisorPanel').classList.remove('hide'); renderAdvisor(); showToast('Ingreso asesor correcto'); } else showToast('Clave asesor incorrecta'); };
+      window.addEventListener('click', function(e){ qsa('.modal.open').forEach(function(m){ if(e.target===m) closeModal(m.id); }); });
+    }
+    async function poll(){
+      clearTimeout(pollTimer);
+      try{
+        var res=await api('getData');
+        var incoming=mergeData(res.data);
+        syncRuntime.live = true;
+        setSyncMode('live');
+        if(!state.data || incoming.updatedAt!==state.data.updatedAt){
+          state.data=incoming;
+          syncRuntime.lastRemoteAt = incoming.updatedAt || '';
+          renderAll();
+        }
+      }catch(e){
+        if(!syncRuntime.live) setSyncMode('local');
+      }
+      pollTimer=setTimeout(poll,pollMs);
+    }
+    if(syncChannel){
+      syncChannel.onmessage=function(ev){
+        var msg=ev && ev.data ? ev.data : {};
+        if(msg.updatedAt && msg.updatedAt!==syncRuntime.lastRemoteAt){ loadData(); }
+      };
+    }
+    document.addEventListener('visibilitychange', function(){ if(!document.hidden && syncRuntime.live){ loadData(); } });
+    bindStatic(); loadData().then(function(){ logVisit(); poll(); });
+  })();
+  </script>
+</body>
+</html>
